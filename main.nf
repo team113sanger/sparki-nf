@@ -6,12 +6,12 @@ process RUN_KRAKEN2 {
     module "kraken2/2.1.2"
 
     input: 
-    tuple val(METADATA), path(READS)
+    tuple val(SAMPLE_ID), path(READS)
     path(REF_DIR)
     val(C_SCORE)
 
     output:
-    tuple val(METADATA), path("*.kraken"), emit: std_report
+    tuple val(SAMPLE_ID), path("*.kraken"), emit: std_report
 
     script: 
     """
@@ -21,7 +21,7 @@ process RUN_KRAKEN2 {
     --use-names \
     --confidence ${C_SCORE} \
     --db ${REF_DIR} \
-    --report ${METADATA}.kraken \
+    --report ${SAMPLE_ID}.kraken \
     --report-minimizer-data \
     --output /dev/null ${READS} 
     """
@@ -30,9 +30,9 @@ process RUN_KRAKEN2 {
     """
     echo ${C_SCORE}
     echo ${REF_DIR}
-    echo ${METADATA}
+    echo ${SAMPLE_ID}
     echo ${READS}
-    touch sample.kraken
+    touch ${SAMPLE_ID}.kraken
     """
 
 }
@@ -64,7 +64,6 @@ workflow {
     
     reads_sample_pair = Channel.fromFilePairs(params.fastq_files, checkIfExists: true) // Add .take(1) to limit to a single sample
     reference = file(params.reference_database, checkIfExists: true)
-    confidence = Channel.of(params.c_score)
 
-    RUN_KRAKEN2(reads_sample_pair, reference, confidence).view() // Add .view() to see results as they are output by kraken
+    RUN_KRAKEN2(reads_sample_pair, reference, params.confidence).view() // Add .view() to see results as they are output by kraken
 }
