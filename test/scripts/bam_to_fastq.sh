@@ -12,7 +12,7 @@ OUTDIR="/lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/dat
 
 module load samtools/1.14
 
-for BAM in BAMS; do
+for BAM in ${BAMS}; do
     SAMPLE_NAME=$(basename ${BAM} ".bam")
     echo "Running ${SAMPLE_NAME}"
     samtools collate -u -O ${BAM} | samtools fastq -c 6 -@ 8 -1 ${OUTDIR}/${SAMPLE_NAME}_1.fq.gz -2 ${OUTDIR}/${SAMPLE_NAME}_2.fq.gz -0 /dev/null -s /dev/null -n
