@@ -1,0 +1,67 @@
+Running PR42171a.sample.dupmarked
+Running PR42172a.sample.dupmarked
+Running PR42172d.sample.dupmarked
+Running PR42173a.sample.dupmarked
+Running PR42174c.sample.dupmarked
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@node-14-25>
+Subject: Job 788031: <bam_to_fastq> in cluster <farm22> Done
+
+Job <bam_to_fastq> was submitted from host <farm22-head1> by user <jb62> in cluster <farm22> at Wed Jul 17 13:41:54 2024
+Job was executed on host(s) <node-14-25>, in queue <normal>, as user <jb62> in cluster <farm22> at Wed Jul 17 13:41:55 2024
+</nfs/users/nfs_j/jb62> was used as the home directory.
+</lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf> was used as the working directory.
+Started at Wed Jul 17 13:41:55 2024
+Terminated at Wed Jul 17 15:02:20 2024
+Results reported at Wed Jul 17 15:02:20 2024
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+
+# BSUB -q normal
+# BSUB -o /lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/logs/bam_to_fastq.out
+# BSUB -e /lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/logs/bam_to_fastq.err
+# BSUB -J bam_to_fastq
+# BSUB -R "select[mem>20GB] rusage[mem=20GB] span[hosts=1]"
+# BSUB -M 20GB
+
+BAMS=$(ls /lustre/scratch126/casm/team113da/projects/5765_2680_sebaceous_tumour_RNAseq_remap/bams/*.bam | head -5)
+OUTDIR="/lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/data"
+
+module load samtools-1.14/python-3.12.0
+
+for BAM in ${BAMS}; do
+    SAMPLE_NAME=$(basename ${BAM} ".bam")
+    echo "Running ${SAMPLE_NAME}"
+    samtools collate -u -O ${BAM} | samtools fastq -c 6 -@ 8 -1 ${OUTDIR}/${SAMPLE_NAME}_1.fq.gz -2 ${OUTDIR}/${SAMPLE_NAME}_2.fq.gz -0 /dev/null -s /dev/null -n
+done
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   4800.04 sec.
+    Max Memory :                                 1063 MB
+    Average Memory :                             698.80 MB
+    Total Requested Memory :                     20480.00 MB
+    Delta Memory :                               19417.00 MB
+    Max Swap :                                   -
+    Max Processes :                              6
+    Max Threads :                                17
+    Run time :                                   4825 sec.
+    Turnaround time :                            4826 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file </lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/logs/bam_to_fastq.err> for stderr output of this job.
+

@@ -1,0 +1,12 @@
+Loading samtools-1.14/python-3.12.0
+  Loading requirement: python-3.12.0/perl-5.38.0
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 102880098 reads
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 72609988 reads
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 112915384 reads
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 120419744 reads
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 61791522 reads
