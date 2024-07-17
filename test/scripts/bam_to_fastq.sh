@@ -7,7 +7,7 @@
 # BSUB -R "select[mem>20GB] rusage[mem=20GB] span[hosts=1]"
 # BSUB -M 20GB
 
-BAMS=$(ls -lh /lustre/scratch126/casm/team113da/projects/5765_2680_sebaceous_tumour_RNAseq_remap/bams/*.bam | head -5)
+BAMS=$(ls /lustre/scratch126/casm/team113da/projects/5765_2680_sebaceous_tumour_RNAseq_remap/bams/*.bam | head -5)
 OUTDIR="/lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/data"
 
 module load samtools/1.14
