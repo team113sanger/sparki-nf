@@ -10,7 +10,7 @@
 BAMS=$(ls /lustre/scratch126/casm/team113da/projects/5765_2680_sebaceous_tumour_RNAseq_remap/bams/*.bam | head -5)
 OUTDIR="/lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/data"
 
-module load samtools/1.14
+module load samtools-1.14/python-3.12.0
 
 for BAM in ${BAMS}; do
     SAMPLE_NAME=$(basename ${BAM} ".bam")
