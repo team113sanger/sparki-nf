@@ -1,4 +1,5 @@
 test/data/*
 .nextflow
-.nextflow.log
+.nextflow.log*
 work/*
+test/results/*
