@@ -37,28 +37,31 @@ process RUN_KRAKEN2 {
 
 }
 
-//process RUN_KRAKENTOOLS {
-  //  publishDir "${params.outdir}", mode: "copy"
-  //  module "krakentools/1.2.4"
+process RUN_KRAKENTOOLS {
+    publishDir "${params.outdir}", mode: "copy"
+    module "krakentools/1.2.4"
 
-  //  input: 
-  //  tuple val(METADATA), path(REPORT)
+    input: 
+    tuple val(SAMPLE_ID), path(REPORT)
 
-  //  output:
-  //  tuple val(METADATA), path("*.kraken"), emit: mpa_report
+    output:
+    tuple val(SAMPLE_ID), path("*.kraken.mpa"), emit: mpa_report
 
-  //  script: 
-  //  """
-  //  kreport2mpa.py \
-  //     --report ${REPORT} \
-  //      --output ${METADATA}.kraken.mpa
-  //  """
+    script: 
+    """
+    kreport2mpa.py \
+      --report ${REPORT} \
+      --output ${SAMPLE_ID}.kraken.mpa
+    """
     
-    //stub:
-    //"""
-    //"""
+    stub:
+    """
+    echo ${REPORT}
+    echo ${SAMPLE_ID}
+    touch ${SAMPLE_ID}.kraken.mpa
+    """
 
-//}
+}
 
 workflow {
     
@@ -66,4 +69,5 @@ workflow {
     reference = file(params.reference_database, checkIfExists: true)
 
     RUN_KRAKEN2(reads_sample_pair, reference, params.confidence).view() // Add .view() to see results as they are output by kraken
+    RUN_KRAKENTOOLS(RUN_KRAKEN2.out.std_report).view()
 }
