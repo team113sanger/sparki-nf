@@ -1,0 +1,6 @@
+{
+    "outdir": "/lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf",
+    "fastq_files": "path/to/fastq",
+    "reference_database": "/lustre/scratch124/casm/team113/ref/DERMATLAS/kraken2_complete_capped_march2023",
+    "confidence": "0.1"
+}
