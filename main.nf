@@ -63,6 +63,11 @@ process RUN_KRAKENTOOLS {
 
 }
 
+process RUN_SPARKI {
+    publishDir "${params.outdir}", mode: "copy"
+
+//}
+
 workflow {
     
     reads_sample_pair = Channel.fromFilePairs(params.fastq_files, checkIfExists: true) // Add .take(1) to limit to a single sample
