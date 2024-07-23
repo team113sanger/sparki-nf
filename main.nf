@@ -16,14 +16,14 @@ process RUN_KRAKEN2 {
     script: 
     """
     kraken2 \
-    --paired \
-    --gzip-compressed \
-    --use-names \
-    --confidence ${C_SCORE} \
-    --db ${REF_DIR} \
-    --report ${SAMPLE_ID}.kraken \
-    --report-minimizer-data \
-    --output /dev/null ${READS} 
+        --paired \
+        --gzip-compressed \
+        --use-names \
+        --confidence ${C_SCORE} \
+        --db ${REF_DIR} \
+        --report ${SAMPLE_ID}.kraken \
+        --report-minimizer-data \
+        --output /dev/null ${READS} 
     """
     
     stub:
@@ -50,8 +50,8 @@ process RUN_KRAKENTOOLS {
     script: 
     """
     kreport2mpa.py \
-      --report ${REPORT} \
-      --output ${SAMPLE_ID}.kraken.mpa
+        --report ${REPORT} \
+        --output ${SAMPLE_ID}.kraken.mpa
     """
     
     stub:
@@ -66,13 +66,50 @@ process RUN_KRAKENTOOLS {
 process RUN_SPARKI {
     publishDir "${params.outdir}", mode: "copy"
 
-//}
+    input:
+    tuple val(SAMPLE_ID), path(STD_REPORT)
+    tuple val(SAMPLE_ID), path(MPA_REPORT)
+    path(REF_DIR)
+    path(METADATA)
+    val(COLUMNS)
+    val(PREFIX)
+
+    output:
+
+    """
+    SPARKI_EXEC --std-reports ${STD_REPORT} --mpa-reports ${MPA_REPORT} \
+        --reference ${REF_DIR}/inspect.txt \
+        --metadata ${METADATA} \
+        --columns ${COLUMNS} \
+        --prefix ${PREFIX} \
+        --outdir ${PROJECTDIR}/test/outputs/ \
+        --verbose \
+        --domain Viruses
+    """
+
+}
 
 workflow {
     
     reads_sample_pair = Channel.fromFilePairs(params.fastq_files, checkIfExists: true) // Add .take(1) to limit to a single sample
     reference = file(params.reference_database, checkIfExists: true)
+    metadata = file(params.metadata, checkIfExists: true)
 
-    RUN_KRAKEN2(reads_sample_pair, reference, params.confidence).view() // Add .view() to see results as they are output by kraken
+    // Run Kraken2.
+    RUN_KRAKEN2(reads_sample_pair, reference, params.confidence).view() 
+    
+    // Run KrakenTools.
     RUN_KRAKENTOOLS(RUN_KRAKEN2.out.std_report).view()
+
+    // Run SPARKI.
+    RUN_SPARKI(
+        RUN_KRAKEN2.out.std_report, 
+        RUN_KRAKENTOOLS.out.mpa_report,
+        reference,
+        metadata,
+        params.metadata_columns,
+        params.prefix,
+        params.outdir,
+
+    )
 }
