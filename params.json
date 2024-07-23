@@ -2,5 +2,13 @@
     "outdir": "/lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/results",
     "fastq_files": "/lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/data/**_{1,2}.fq.gz",
     "reference_database": "/lustre/scratch124/casm/team113/ref/DERMATLAS/kraken2_complete_capped_march2023",
-    "confidence": "0.1"
+    "confidence": "0.1",
+    "sparki_bin": "/lustre/scratch126/casm/team113da/users/jb62/projects/sparki/bin/run_sparki",
+    "metadata": "/lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/metadata.csv",
+    "metadata_columns": "Diagnosis_short,Site_group",
+    "prefix": "SebT",
+    "verbose": "True",
+    "eukaryotes": "False",
+    "sample_names": "False",
+    "domain": "Viruses"
 }
