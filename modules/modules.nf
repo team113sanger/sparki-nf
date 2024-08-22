@@ -1,3 +1,29 @@
+process BAM_TO_FASTQ {
+  publishDir "${params.fastq_outdir}", mode: "copy"
+  module "samtools-1.14/python-3.12.0"
+
+  input:
+    path(BAM)
+
+  output:
+    tuple val(SAMPLE_ID), path("*_1.fq.gz"), emit: fastq_1
+    tuple val(SAMPLE_ID), path("*_2.fq.gz"), emit: fastq_2
+
+  script:
+    def SAMPLE_ID = BAM.getSimpleName()
+    """
+    samtools collate -u -O ${BAM} | \
+    samtools fastq \
+      -c 6 \
+      -@ 8 \
+      -1 ${SAMPLE_ID}_1.fq.gz \
+      -2 ${SAMPLE_ID}_2.fq.gz \
+      -0 /dev/null \
+      -s /dev/null \
+      -n
+    """
+}
+
 // Run Kraken2 on a sample.
 // This process will generate a standard report.
 process RUN_KRAKEN2 {
@@ -5,10 +31,10 @@ process RUN_KRAKEN2 {
   module "kraken2/2.1.2"
 
   input: 
-    tuple val(SAMPLE_ID), path(READS)
+    tuple val(SAMPLE_ID), path(FASTQ1)
+    tuple val(SAMPLE_ID), path(FASTQ2)
     path(REF_DIR)
     val(C_SCORE)
-    val(OPTIONS)
 
   output:
     tuple val(SAMPLE_ID), path("*.kraken"), emit: std_report
@@ -16,13 +42,15 @@ process RUN_KRAKEN2 {
   script: 
     """
     kraken2 \
-      ${OPTIONS} \
+      --paired \
+      --gzip-compressed \
       --use-names \
       --confidence ${C_SCORE} \
       --db ${REF_DIR} \
       --report ${SAMPLE_ID}.kraken \
       --report-minimizer-data \
-      --output /dev/null ${READS} 
+      --output /dev/null \
+      ${FASTQ1} ${FASTQ2} 
     """
       
   stub:
@@ -74,8 +102,8 @@ process RUN_SPARKI {
   publishDir "${params.sparki_outdir}", mode: "copy"
     
   input:
-    tuple val(SAMPLE_ID), path(STD_REPORTS)
-    tuple val(SAMPLE_ID), path(MPA_REPORTS)
+    path(STD_REPORTS)
+    path(MPA_REPORTS)
     path(REF_DIR)
     path(METADATA)
     val(COLUMNS)
