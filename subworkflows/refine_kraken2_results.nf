@@ -1,27 +1,36 @@
 include { RUN_SPARKI } from '../modules/modules.nf'
 
 workflow REFINE_KRAKEN2_RESULTS {
-  take:
-    std_reports
-    mpa_reports
-    reference_dir
-    metadata
-    metadata_columns
-    prefix
-    domain
-    options
-    outdir
 
-  main:
-    RUN_SPARKI(
-      std_reports,
-      mpa_reports,
-      reference_dir,
-      metadata,
-      metadata_columns,
-      prefix,
-      domain,
-      options,
-      outdir
-    )
+    take:
+        std_reports
+        mpa_reports
+        std_reports_dir
+        mpa_reports_dir
+        reference_dir
+        metadata
+        metadata_sample_column
+        metadata_columns
+        prefix
+        domain
+        options
+        sparki_dir
+
+    main:
+
+        RUN_SPARKI(
+            std_reports.take(1),
+            mpa_reports.take(1),
+            std_reports_dir,
+            mpa_reports_dir,
+            reference_dir,
+            metadata,
+            metadata_sample_column,
+            metadata_columns,
+            prefix,
+            domain,
+            options,
+            sparki_dir
+        )
+
 }

@@ -1,13 +1,13 @@
 {
+    "outdir": "/lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/results",
     "bam_files": "/lustre/scratch126/casm/team113da/projects/5765_2680_sebaceous_tumour_RNAseq_remap/bams/**.bam",
-    "fastq_outdir": "/lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/data",
-    "kraken_outdir": "/lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/results",
     "reference_database": "/lustre/scratch124/casm/team113/ref/DERMATLAS/kraken2_complete_capped_march2023",
     "confidence": "0.1",
     "metadata": "/lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/metadata.csv",
+    "metadata_sample_column": "Tumour_RNA",
     "metadata_columns": "Diagnosis_short,Site_group",
     "prefix": "SebT",
     "domain": "Viruses",
-    "sparki_outdir": "/lustre/scratch126/casm/team113da/users/jb62/projects/sparki-nf/test/results/sparki",
-    "options_for_sparki": "--verbose"
+    "options_for_sparki": "--verbose",
+    "copy_mode": "symlink"
 }

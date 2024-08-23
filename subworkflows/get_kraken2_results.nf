@@ -10,19 +10,10 @@ workflow GET_KRAKEN2_RESULTS {
 
     main:
         RUN_KRAKEN2(reads, reference_dir, confidence_score, options)
-            .map { it[1] }
-            .collect()
-            .set { kraken2_std_reports }
-        kraken2_std_reports.view()
-
         RUN_KRAKENTOOLS(RUN_KRAKEN2.out.std_report)
-            .map { it[1] }
-            .collect()
-            .set { kraken2_mpa_reports }
-        kraken2_mpa_reports.view()
-
+            
     emit:
-        std_reports = kraken2_std_reports
-        mpa_reports = kraken2_mpa_reports
+        std_reports = RUN_KRAKEN2.out.std_report
+        mpa_reports = RUN_KRAKENTOOLS.out.mpa_report
 
 }
