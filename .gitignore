@@ -1,6 +1,4 @@
-test/data/*
-test/metadata.csv
+test/*
 .nextflow
 .nextflow.log*
 work/*
-test/results/*
