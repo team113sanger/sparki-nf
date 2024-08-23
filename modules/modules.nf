@@ -1,5 +1,5 @@
 process BAM_TO_FASTQ {
-    publishDir "${params.outdir}/fastq", mode: "copy"
+    publishDir "${params.outdir}/fastq"
     module "samtools-1.14/python-3.12.0"
 
     input:
@@ -32,7 +32,7 @@ process BAM_TO_FASTQ {
 // Run Kraken2 on a sample.
 // This process will generate a standard report.
 process RUN_KRAKEN2 {
-    publishDir "${params.outdir}/std_reports", mode: "copy"
+    publishDir "${params.outdir}/std_reports"
     module "kraken2/2.1.2"
 
     input: 
@@ -60,11 +60,6 @@ process RUN_KRAKEN2 {
         
     stub:
         """
-        pwd
-        echo "Running Kraken2 on sample ${SAMPLE_ID}..."
-        echo -e "\tUsing reference database from ${REF_DIR}"
-        echo -e "\tUsing a confidence score of ${C_SCORE}"
-        echo -e "\tCreating standard report ${SAMPLE_ID}.kraken"
         touch ${SAMPLE_ID}.kraken
         """
 
@@ -73,7 +68,7 @@ process RUN_KRAKEN2 {
 // Run KrakenTools on a sample.
 // This process will generate an MPA-style report.
 process RUN_KRAKENTOOLS {
-    publishDir "${params.outdir}/mpa_reports", mode: "copy"
+    publishDir "${params.outdir}/mpa_reports"
     module "krakentools/1.2.4"
 
     input: 
@@ -91,26 +86,45 @@ process RUN_KRAKENTOOLS {
         
     stub:
         """
-        pwd
-        echo "Running KrakenTools on sample ${SAMPLE_ID}..."
-        echo -e "\tPath to standard report: ${REPORT}"
-        echo -e "\tCreating MPA-style report ${SAMPLE_ID}.kraken.mpa"
         touch ${SAMPLE_ID}.kraken.mpa
         """
 
 }
 
+// Clean up files after running Kraken2 and KrakenTools
+process CLEAN_UP {
+    publishDir "${params.outdir}/logs"
+
+    input:
+        tuple val(SAMPLE_ID), path(FASTQ1)
+        tuple val(SAMPLE_ID), path(FASTQ2)
+        tuple val(SAMPLE_ID), path(STD_REPORT)
+        tuple val(SAMPLE_ID), path(MPA_REPORT)
+
+    output:
+        path("*.txt")
+
+    script:
+        """
+        echo "Excluding ${FASTQ1} and ${FASTQ2}..." > ${SAMPLE_ID}_FASTQ_deletion.txt
+        rm -f ${FASTQ1}
+        rm -f ${FASTQ2}
+        echo "FASTQ files successfully deleted!" >> ${SAMPLE_ID}_FASTQ_deletion.txt
+        """
+
+}
 
 // Run SPARKI on a set of samples.
 // This process collates the Kraken2/KrakenTools results of a set
 // of samples and refines the output to help with the interpretation.
 process RUN_SPARKI {
+    publishDir "${params.outdir}/logs"
    
     input:
-        val(STD)
-        val(MPA)
-        path(STD_REPORTS)
-        path(MPA_REPORTS)
+        val(ALL_STD_REPORTS)
+        val(ALL_MPA_REPORTS)
+        path(STD_REPORTS_DIR)
+        path(MPA_REPORTS_DIR)
         path(REF_DIR)
         path(METADATA)
         val(SAMPLE_COL)
@@ -120,13 +134,18 @@ process RUN_SPARKI {
         val(OPTIONS)
         path(OUTDIR)
 
+    output:
+        path("*.txt")
+
     script:
         def RSCRIPT = "/software/team113/dermatlas/R/R-4.2.2/bin/Rscript"
         def SPARKI_CLI = "/lustre/scratch126/casm/team113da/users/jb62/projects/sparki/src/cli.R"
         """
+        echo "Running SPARKI..." > SPARKI_analysis.txt
+
         ${RSCRIPT} ${SPARKI_CLI} \
-        --std-reports ${STD_REPORTS} \
-        --mpa-reports ${MPA_REPORTS} \
+        --std-reports ${STD_REPORTS_DIR} \
+        --mpa-reports ${MPA_REPORTS_DIR} \
         --reference ${REF_DIR}/inspect.txt \
         --metadata ${METADATA} \
         --sample-col ${SAMPLE_COL} \
@@ -135,21 +154,15 @@ process RUN_SPARKI {
         --outdir ${OUTDIR} \
         --domain ${DOMAIN} \
         ${OPTIONS}
+
+        echo "SPARKI analysis successfully completed!" >> SPARKI_analysis.txt
         """
 
     stub:
         """
-        pwd
-        echo "${STD_REPORTS}"
-        echo "${MPA_REPORTS}"
-        echo "${REF_DIR}"
-        echo "${METADATA}"
-        echo "${COLUMNS}"
-        echo "${PREFIX}"
-        echo "${OUTDIR}"
-        echo "${DOMAIN}"
-        echo "${OPTIONS}"
+        echo "Running SPARKI..." > SPARKI_analysis.txt
         touch "${OUTDIR}/merged_reports.tsv"
+        echo "SPARKI analysis successfully completed!" >> SPARKI_analysis.txt
         """
 
 }
