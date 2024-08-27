@@ -125,6 +125,7 @@ process RUN_SPARKI {
         val(ALL_MPA_REPORTS)
         path(STD_REPORTS_DIR)
         path(MPA_REPORTS_DIR)
+        val(ORGANISM)
         path(REF_DIR)
         path(METADATA)
         val(SAMPLE_COL)
@@ -146,6 +147,7 @@ process RUN_SPARKI {
         ${RSCRIPT} ${SPARKI_CLI} \
         --std-reports ${STD_REPORTS_DIR} \
         --mpa-reports ${MPA_REPORTS_DIR} \
+        --organism ${ORGANISM} \
         --reference ${REF_DIR}/inspect.txt \
         --metadata ${METADATA} \
         --sample-col ${SAMPLE_COL} \

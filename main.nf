@@ -63,6 +63,7 @@ workflow {
         all_mpa_reports,                // MPA-style reports.
         std_reports_dir,                // Directory for standard reports.
         mpa_reports_dir,                // Directory for MPA-style reports.
+        params.organism,                // Organism being analysed, at the species level (e.g. Homo sapiens).
         reference_dir,                  // Kraken2's reference database.
         metadata,                       // Metadata table.
         params.metadata_sample_column,  // Sample column in metadata table.

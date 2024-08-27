@@ -7,6 +7,7 @@ workflow REFINE_KRAKEN2_RESULTS {
         all_mpa_reports
         std_reports_dir
         mpa_reports_dir
+        organism
         reference_dir
         metadata
         metadata_sample_column
@@ -23,6 +24,7 @@ workflow REFINE_KRAKEN2_RESULTS {
             all_mpa_reports,
             std_reports_dir,
             mpa_reports_dir,
+            organism,
             reference_dir,
             metadata,
             metadata_sample_column,
