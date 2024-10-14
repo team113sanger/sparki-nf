@@ -11,7 +11,8 @@ process BAM_TO_FASTQ {
 
     script:
         """
-        samtools collate -u -O ${BAM} | \
+        samtools view -b -f 4 ${BAM} | \
+        samtools collate - -u -O | \
         samtools fastq \
         -c 6 \
         -@ 8 \
@@ -81,35 +82,13 @@ process RUN_KRAKENTOOLS {
         """
         kreport2mpa.py \
         --report ${REPORT} \
-        --output ${SAMPLE_ID}.kraken.mpa
+        --output ${SAMPLE_ID}.kraken.mpa \
+        --keep-spaces
         """
         
     stub:
         """
         touch ${SAMPLE_ID}.kraken.mpa
-        """
-
-}
-
-// Clean up files after running Kraken2 and KrakenTools
-process CLEAN_UP {
-    publishDir "${params.outdir}/logs"
-
-    input:
-        tuple val(SAMPLE_ID), path(FASTQ1)
-        tuple val(SAMPLE_ID), path(FASTQ2)
-        tuple val(SAMPLE_ID), path(STD_REPORT)
-        tuple val(SAMPLE_ID), path(MPA_REPORT)
-
-    output:
-        path("*.txt")
-
-    script:
-        """
-        echo "Excluding ${FASTQ1} and ${FASTQ2}..." > ${SAMPLE_ID}_FASTQ_deletion.txt
-        rm -f ${FASTQ1}
-        rm -f ${FASTQ2}
-        echo "FASTQ files successfully deleted!" >> ${SAMPLE_ID}_FASTQ_deletion.txt
         """
 
 }

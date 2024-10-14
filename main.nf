@@ -12,8 +12,7 @@ workflow {
     /*************************/
 
     bams = Channel.fromPath(params.bam_files, checkIfExists: true)         // BAM files.
-        .take(10)
-        .map { file -> tuple(file.simpleName, file)}
+        .map { file -> tuple(file.simpleName, file) }
     reference_dir = file(params.reference_database, checkIfExists: true)   // Kraken2's reference database.
     metadata = file(params.metadata, checkIfExists: true)                  // Metadata file.
 
