@@ -24,6 +24,7 @@ The inputs for *sparki-nf* must be defined in a `json` file (e.g. `params.json`)
 - `bam_files`: this is the path to your SAM/BAM/CRAM files; note that you need to include `**.sam`/`**.bam`/`**.cram` in the path.
 - `reference_database`: this is the path to your Kraken2 reference database; note that your reference database must have the file `inspect.txt`.
 - `confidence`: the confidence score for Kraken2; it can be any value in the interval `[0,1]`, although a value of `0.1` is recommended (please check out [this link](https://software.cqls.oregonstate.edu/updates/docs/kraken2/MANUAL.html) for more information).
+- `organism`: this is the species you are analysing (e.g. if you are working with human samples, `organism` will be `Homo sapiens`).
 - `metadata`: this is the path to a metadata file.
 - `metadata_sample_column`: this is the column in the metadata file that contains sample IDs; the sample IDs must match the names present in the SAM/BAM/CRAM files.
 - `metadata_columns`: comma-separated names of columns present in the metadata file.
