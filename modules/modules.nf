@@ -119,7 +119,7 @@ process RUN_SPARKI {
 
     script:
         def RSCRIPT = "/software/team113/dermatlas/R/R-4.2.2/bin/Rscript"
-        def SPARKI_CLI = "/lustre/scratch126/casm/team113da/users/jb62/projects/sparki/src/cli.R"
+        def SPARKI_CLI = "/lustre/scratch126/casm/team113da/users/jb62/projects/sparki/R/cli.R"
         """
         echo "Running SPARKI..." > SPARKI_analysis.txt
 
