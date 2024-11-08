@@ -20,16 +20,20 @@ Note that *sparki-nf* runs SPARKI through SPARKI's command line interface (CLI);
 ## Inputs
 
 The inputs for *sparki-nf* must be defined in a `json` file (e.g. `params.json`) as follows:
+
+### Required
 - `outdir`: this is the directory where all results will be saved to!
 - `bam_files`: this is the path to your SAM/BAM/CRAM files; note that you need to include `**.sam`/`**.bam`/`**.cram` in the path.
 - `reference_database`: this is the path to your Kraken2 reference database; note that your reference database must have the file `inspect.txt`.
 - `confidence`: the confidence score for Kraken2; it can be any value in the interval `[0,1]`, although a value of `0.1` is recommended (please check out [this link](https://software.cqls.oregonstate.edu/updates/docs/kraken2/MANUAL.html) for more information).
 - `organism`: this is the species you are analysing (e.g. if you are working with human samples, `organism` will be `Homo sapiens`).
+
+### Optional
 - `metadata`: this is the path to a metadata file.
 - `metadata_sample_column`: this is the column in the metadata file that contains sample IDs; the sample IDs must match the names present in the SAM/BAM/CRAM files.
 - `metadata_columns`: comma-separated names of columns present in the metadata file.
-- `prefix`: this the prefix that will be added to SPARKI's output files.
 - `domain`: this is the domain (`Eukaryota`/`Viruses`/`Archaea`/`Bacteria`) that you are interested in; if interested in more than one domain, the domain names must be comma-separated (e.g. `Viruses,Bacteria`)
+- `prefix`: this the prefix that will be added to SPARKI's output files.
 - `options_for_sparki`: these are additional flags that can be provided to SPARKI (`--verbose`, `--include-eukaryotes`, and `--include-sample-names`); please refer to the [SPARKI documentation](https://gitlab.internal.sanger.ac.uk/team113_projects/jb62-projects/sparki) for more information on these flags.
 - `samples-to-remove`: this is a text file containing a list of samples that should not be included in the final SPARKI outputs.
 
