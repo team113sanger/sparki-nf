@@ -9,7 +9,6 @@
     "metadata_columns": "Diagnosis_short,Site_group",
     "prefix": "SebT",
     "domain": "Viruses",
-    "options_for_sparki": "--verbose",
-    "samples_to_remove": "/lustre/scratch124/casm/team113/users/jb62/projects/sparki-nf/test/samples_to_remove.txt",
+    "options_for_sparki": "--verbose --samples-to-remove /lustre/scratch124/casm/team113/users/jb62/projects/sparki-nf/test/samples_to_remove.txt",
     "copy_mode": "symlink"
 }
