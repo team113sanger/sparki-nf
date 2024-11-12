@@ -100,19 +100,24 @@ process RUN_SPARKI {
     publishDir "${params.outdir}/logs"
    
     input:
+        // Mandatory inputs.
         val(ALL_STD_REPORTS)
         val(ALL_MPA_REPORTS)
         path(STD_REPORTS_DIR)
         path(MPA_REPORTS_DIR)
         val(ORGANISM)
         path(REF_DIR)
-        path(METADATA)
-        val(SAMPLE_COL)
-        val(COLUMNS)
-        val(PREFIX)
         val(DOMAIN)
-        val(OPTIONS)
         path(OUTDIR)
+        // Optional inputs.
+        val(METADATA), default: ""
+        val(SAMPLE_COL), default: ""
+        val(COLUMNS), default: ""
+        val(PREFIX), default: ""
+        val(SAMPLES_TO_REMOVE), default: ""
+        val(INCLUDE_EUKARYOTES), default: ""
+        val(INCLUDE_SAMPLE_NAMES), default: ""
+        val(VERBOSE), default: ""
 
     output:
         path("*.txt")
@@ -128,13 +133,16 @@ process RUN_SPARKI {
         --mpa-reports ${MPA_REPORTS_DIR} \
         --organism ${ORGANISM} \
         --reference ${REF_DIR}/inspect.txt \
-        --metadata ${METADATA} \
-        --sample-col ${SAMPLE_COL} \
-        --columns ${COLUMNS} \
-        --prefix ${PREFIX} \
         --outdir ${OUTDIR} \
         --domain ${DOMAIN} \
-        ${OPTIONS}
+        ${METADATA} \
+        ${SAMPLE_COL} \
+        ${COLUMNS} \
+        ${PREFIX} \
+        ${SAMPLES_TO_REMOVE} \
+        ${INCLUDE_EUKARYOTES} \
+        ${INCLUDE_SAMPLE_NAMES} \
+        ${VERBOSE}
 
         echo "SPARKI analysis successfully completed!" >> SPARKI_analysis.txt
         """

@@ -14,7 +14,6 @@ workflow {
     bams = Channel.fromPath(params.bam_files, checkIfExists: true)         // BAM files.
         .map { file -> tuple(file.simpleName, file) }
     reference_dir = file(params.reference_database, checkIfExists: true)   // Kraken2's reference database.
-    metadata = file(params.metadata, checkIfExists: true)                  // Metadata file.
 
     /****************************/
     /**** Create directories ****/
@@ -57,19 +56,22 @@ workflow {
         .set { all_mpa_reports }
 
     // Run SPARKI.
-    REFINE_KRAKEN2_RESULTS(                     
+    REFINE_KRAKEN2_RESULTS(
         all_std_reports,                // Standard reports.
         all_mpa_reports,                // MPA-style reports.
         std_reports_dir,                // Directory for standard reports.
         mpa_reports_dir,                // Directory for MPA-style reports.
         params.organism,                // Organism being analysed, at the species level (e.g. Homo sapiens).
         reference_dir,                  // Kraken2's reference database.
-        metadata,                       // Metadata table.
+        params.domain,                  // Domain of interest (e.g. Viruses).
+        params.metadata,                // Metadata table.
         params.metadata_sample_column,  // Sample column in metadata table.
         params.metadata_columns,        // Comma-delimited columns names from the metadata table.
         params.prefix,                  // Prefix to be added to output files.
-        params.domain,                  // Domain of interest (e.g. Viruses).
-        params.options_for_sparki,      // Additional options for SPARKI (e.g. --verbose).
+        params.include_eukaryotes,      // Whether eukaryotes should be included in all plots.
+        params.include_sample_names,    // Whether sample names should be included in all plots.
+        params.verbose,                 // Whether SPARKI should be run in verbose mode.
+        params.samples_to_remove,       // Samples that should not be included in the SPARKI analysis.
         sparki_dir                      // Directory for SPARKI outputs.
     )
 }
