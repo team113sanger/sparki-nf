@@ -118,16 +118,12 @@ process RUN_SPARKI {
         val(INCLUDE_EUKARYOTES), default: ""
         val(INCLUDE_SAMPLE_NAMES), default: ""
         val(VERBOSE), default: ""
-
-    output:
-        path("*.txt")
+        // SPARKI and Rscript.
+        path(SPARKI_CLI)
+        path(RSCRIPT)
 
     script:
-        def RSCRIPT = "/software/team113/dermatlas/R/R-4.2.2/bin/Rscript"
-        def SPARKI_CLI = "/lustre/scratch126/casm/team113da/users/jb62/projects/sparki/R/cli.R"
         """
-        echo "Running SPARKI..." > SPARKI_analysis.txt
-
         ${RSCRIPT} ${SPARKI_CLI} \
         --std-reports ${STD_REPORTS_DIR} \
         --mpa-reports ${MPA_REPORTS_DIR} \
@@ -139,19 +135,32 @@ process RUN_SPARKI {
         ${SAMPLE_COL} \
         ${COLUMNS} \
         ${PREFIX} \
-        ${SAMPLES_TO_REMOVE} \
         ${INCLUDE_EUKARYOTES} \
         ${INCLUDE_SAMPLE_NAMES} \
-        ${VERBOSE}
-
-        echo "SPARKI analysis successfully completed!" >> SPARKI_analysis.txt
+        ${VERBOSE} \
+        ${SAMPLES_TO_REMOVE}
         """
 
     stub:
         """
-        echo "Running SPARKI..." > SPARKI_analysis.txt
-        touch "${OUTDIR}/merged_reports.tsv"
-        echo "SPARKI analysis successfully completed!" >> SPARKI_analysis.txt
+        echo "USER-DEFINED INPUTS:"
+        echo -e "\tStandard reports directory: ${STD_REPORTS_DIR}"
+        echo -e "\tMPA-style reports directory: ${MPA_REPORTS_DIR}"
+        echo -e "\tOrganism: ${ORGANISM}"
+        echo -e "\tKraken2 reference path: ${REF_DIR}"
+        echo -e "\tOutput directory for SPARKI results: ${OUTDIR}"
+        echo -e "\tDomain(s): ${DOMAIN}"
+        echo -e "\tMetadata: ${METADATA}"
+        echo -e "\tMetadata sample column: ${SAMPLE_COL}"
+        echo -e "\tMetadata columns: ${COLUMNS}"
+        echo -e "\tPrefix: ${PREFIX}"
+        echo -e "\tInclude eukaryotes: ${INCLUDE_EUKARYOTES}"
+        echo -e "\tInclude sample names: ${INCLUDE_SAMPLE_NAMES}"
+        echo -e "\tVerbose: ${VERBOSE}"
+        echo -e "\tSamples to remove: ${SAMPLES_TO_REMOVE}"
+
+        echo "SPARKI output"
+        touch "${OUTDIR}/sparki.csv"
         """
 
 }

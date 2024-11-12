@@ -72,6 +72,8 @@ workflow {
         params.include_sample_names,    // Whether sample names should be included in all plots.
         params.verbose,                 // Whether SPARKI should be run in verbose mode.
         params.samples_to_remove,       // Samples that should not be included in the SPARKI analysis.
-        sparki_dir                      // Directory for SPARKI outputs.
+        sparki_dir,                     // Directory for SPARKI outputs.
+        params.sparki_cli,
+        params.rscript
     )
 }
