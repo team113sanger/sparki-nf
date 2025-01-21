@@ -64,16 +64,13 @@ workflow {
         params.organism,                // Organism being analysed, at the species level (e.g. Homo sapiens).
         reference_dir,                  // Kraken2's reference database.
         params.domain,                  // Domain of interest (e.g. Viruses).
+        sparki_dir,                     // Directory for SPARKI outputs.
         params.metadata,                // Metadata table.
         params.metadata_sample_column,  // Sample column in metadata table.
-        params.metadata_columns,        // Comma-delimited columns names from the metadata table.
+        params.metadata_columns,        // Comma-delimited column names from the metadata table.
         params.prefix,                  // Prefix to be added to output files.
-        params.include_eukaryotes,      // Whether eukaryotes should be included in all plots.
-        params.include_sample_names,    // Whether sample names should be included in all plots.
-        params.verbose,                 // Whether SPARKI should be run in verbose mode.
+        params.verbosity,                 // Whether SPARKI should be run in verbose mode.
         params.samples_to_remove,       // Samples that should not be included in the SPARKI analysis.
-        sparki_dir,                     // Directory for SPARKI outputs.
-        params.sparki_cli,
-        params.rscript
+        params.flags
     )
 }

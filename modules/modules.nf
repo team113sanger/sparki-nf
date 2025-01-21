@@ -31,7 +31,7 @@ process BAM_TO_FASTQ {
 }
 
 // Run Kraken2 on a sample.
-// This process will generate a standard report.
+// This process will generate a sample-level standard report.
 process RUN_KRAKEN2 {
     publishDir "${params.outdir}/std_reports"
     module "kraken2/2.1.2"
@@ -66,8 +66,8 @@ process RUN_KRAKEN2 {
 
 }
 
-// Run KrakenTools on a sample.
-// This process will generate an MPA-style report.
+// Run KrakenTools' kreport2mpa.py on a sample.
+// This process will generate a sample-level MPA-style report.
 process RUN_KRAKENTOOLS {
     publishDir "${params.outdir}/mpa_reports"
     module "krakentools/1.2.4"
@@ -98,47 +98,43 @@ process RUN_KRAKENTOOLS {
 // of samples and refines the output to help with the interpretation.
 process RUN_SPARKI {
     publishDir "${params.outdir}/logs"
+    module "sparki/0.1.0"
    
     input:
-        // Mandatory inputs.
         val(ALL_STD_REPORTS)
         val(ALL_MPA_REPORTS)
+        // Mandatory inputs for SPARKI.
         path(STD_REPORTS_DIR)
         path(MPA_REPORTS_DIR)
         val(ORGANISM)
         path(REF_DIR)
         val(DOMAIN)
         path(OUTDIR)
-        // Optional inputs.
-        val(METADATA), default: ""
-        val(SAMPLE_COL), default: ""
-        val(COLUMNS), default: ""
-        val(PREFIX), default: ""
-        val(SAMPLES_TO_REMOVE), default: ""
-        val(INCLUDE_EUKARYOTES), default: ""
-        val(INCLUDE_SAMPLE_NAMES), default: ""
-        val(VERBOSE), default: ""
-        // SPARKI and Rscript.
-        path(SPARKI_CLI)
-        path(RSCRIPT)
+        // Optional inputs for SPARKI.
+        val(METADATA)
+        val(SAMPLE_COL)
+        val(COLUMNS)
+        val(PREFIX)
+        val(VERBOSITY)
+        val(SAMPLES_TO_REMOVE)
+        val(FLAGS)
 
     script:
         """
-        ${RSCRIPT} ${SPARKI_CLI} \
-        --std-reports ${STD_REPORTS_DIR} \
-        --mpa-reports ${MPA_REPORTS_DIR} \
-        --organism ${ORGANISM} \
-        --reference ${REF_DIR}/inspect.txt \
-        --outdir ${OUTDIR} \
-        --domain ${DOMAIN} \
-        ${METADATA} \
-        ${SAMPLE_COL} \
-        ${COLUMNS} \
-        ${PREFIX} \
-        ${INCLUDE_EUKARYOTES} \
-        ${INCLUDE_SAMPLE_NAMES} \
-        ${VERBOSE} \
-        ${SAMPLES_TO_REMOVE}
+        Rscript -e "${SPARKI_CLI}" \
+            --std-reports ${STD_REPORTS_DIR} \
+            --mpa-reports ${MPA_REPORTS_DIR} \
+            --organism ${ORGANISM} \
+            --reference ${REF_DIR}/inspect.txt \
+            --outdir ${OUTDIR} \
+            --domain ${DOMAIN} \
+            --metadata ${METADATA} \
+            --sample-col ${SAMPLE_COL} \
+            --columns ${COLUMNS} \
+            --prefix ${PREFIX} \
+            --verbosity ${VERBOSITY} \
+            --samples-to-remove ${SAMPLES_TO_REMOVE} \
+            ${FLAGS}
         """
 
     stub:
@@ -154,13 +150,11 @@ process RUN_SPARKI {
         echo -e "\tMetadata sample column: ${SAMPLE_COL}"
         echo -e "\tMetadata columns: ${COLUMNS}"
         echo -e "\tPrefix: ${PREFIX}"
-        echo -e "\tInclude eukaryotes: ${INCLUDE_EUKARYOTES}"
-        echo -e "\tInclude sample names: ${INCLUDE_SAMPLE_NAMES}"
-        echo -e "\tVerbose: ${VERBOSE}"
+        echo -e "\tVerbose: ${VERBOSITY}"
         echo -e "\tSamples to remove: ${SAMPLES_TO_REMOVE}"
+        echo -e "\tFlags: ${FLAGS}"
 
-        echo "SPARKI output"
+        echo "SPARKI OUTPUT:"
         touch "${OUTDIR}/sparki.csv"
         """
-
 }
