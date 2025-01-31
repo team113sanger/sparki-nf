@@ -37,8 +37,7 @@ workflow {
 
     // Run Kraken2 and KrakenTools.
     GET_KRAKEN2_RESULTS(                         
-        BAM_TO_FASTQ.out.fastq_1,   // FASTQ1.
-        BAM_TO_FASTQ.out.fastq_2,   // FASTQ2.
+        BAM_TO_FASTQ.out.fastqs,   // FASTQs
         reference_dir,              // Kraken2's reference database.
         params.confidence           // Confidence score.
     )
@@ -69,7 +68,7 @@ workflow {
         params.metadata_sample_column,  // Sample column in metadata table.
         params.metadata_columns,        // Comma-delimited column names from the metadata table.
         params.prefix,                  // Prefix to be added to output files.
-        params.verbosity,                 // Whether SPARKI should be run in verbose mode.
+        params.verbosity,                // Whether SPARKI should be run in verbose mode.
         params.samples_to_remove,       // Samples that should not be included in the SPARKI analysis.
         params.flags
     )
