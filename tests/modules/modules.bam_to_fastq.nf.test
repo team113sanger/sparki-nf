@@ -1,0 +1,62 @@
+nextflow_process {
+
+    name "Test Process BAM_TO_FASTQ"
+    script "modules/modules.nf"
+    process "BAM_TO_FASTQ"
+
+    test("BAM_TO_FASTQ runs without errors and generates the expected output files") {
+
+        when {
+            params {
+                bam_files = "${baseDir}/tests/testdata/bam_files/**.bam"
+            }
+            process {
+                """
+                input[0] = Channel.fromPath(params.bam_files, checkIfExists: true)
+                    .map { file -> tuple(file.simpleName, file) }
+                """
+            }
+        }
+
+        then {
+
+            // Check the process runs successfully.
+            assert process.success
+
+            // Check the process generates the expected number of tasks.
+            //
+            // For 3 input BAM files, this number should be 3.
+            //
+            assert process.trace.tasks().size() == 3
+
+            // Check the output of the process contains the expected number
+            // of tuples.
+            //
+            // For 3 input BAM files, this number should be 3.
+            //
+            assert process.out.fastqs.size() == 3
+
+            // Take snapshot and check if it matches the previous one.
+            assert snapshot(process.out.fastqs).match()
+
+            // Inspect the output channel...
+            with(process.out.fastqs) {
+
+                // Check the channel emits 3 tuples.
+                assert size() == 3
+
+                // Inspect one of the tuples emitted by the channel...
+                with(get(0)) {
+
+                    // Check the tuple contains 3 values.
+                    assert size == 3
+
+                    // Check the tuple contains the expected values.
+                    assert get(0) ==~ "PR.*"
+                    assert get(1) ==~ ".*_1.fq.gz"
+                    assert get(2) ==~ ".*_2.fq.gz"
+                }
+            }
+        }
+    }
+}
