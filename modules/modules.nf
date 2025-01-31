@@ -6,8 +6,7 @@ process BAM_TO_FASTQ {
         tuple val(SAMPLE_ID), path(BAM)
 
     output:
-        tuple val(SAMPLE_ID), path("*_1.fq.gz"), emit: fastq_1
-        tuple val(SAMPLE_ID), path("*_2.fq.gz"), emit: fastq_2
+        tuple val(SAMPLE_ID), path("*_1.fq.gz"), path("*_2.fq.gz"), emit: fastqs
 
     script:
         """
@@ -37,8 +36,7 @@ process RUN_KRAKEN2 {
     module "kraken2/2.1.2"
 
     input: 
-        tuple val(SAMPLE_ID), path(FASTQ1)
-        tuple val(SAMPLE_ID), path(FASTQ2)
+        tuple val(SAMPLE_ID), path(FASTQ1), path(FASTQ2)
         path(REF_DIR)
         val(C_SCORE)
 
@@ -93,13 +91,8 @@ process RUN_KRAKENTOOLS {
 
 }
 
-// Run SPARKI on a set of samples.
-// This process collates the Kraken2/KrakenTools results of a set
-// of samples and refines the output to help with the interpretation.
-process RUN_SPARKI {
-    publishDir "${params.outdir}/logs"
-    module "sparki/0.1.0"
-   
+process PREPARE_FOR_SPARKI {
+
     input:
         val(ALL_STD_REPORTS)
         val(ALL_MPA_REPORTS)
@@ -119,22 +112,54 @@ process RUN_SPARKI {
         val(SAMPLES_TO_REMOVE)
         val(FLAGS)
 
+    output:
+        path("*.txt"), emit: args_for_sparki
+
     script:
         """
-        Rscript -e "${SPARKI_CLI}" \
-            --std-reports ${STD_REPORTS_DIR} \
-            --mpa-reports ${MPA_REPORTS_DIR} \
-            --organism ${ORGANISM} \
-            --reference ${REF_DIR}/inspect.txt \
-            --outdir ${OUTDIR} \
-            --domain ${DOMAIN} \
-            --metadata ${METADATA} \
-            --sample-col ${SAMPLE_COL} \
-            --columns ${COLUMNS} \
-            --prefix ${PREFIX} \
-            --verbosity ${VERBOSITY} \
-            --samples-to-remove ${SAMPLES_TO_REMOVE} \
-            ${FLAGS}
+        #!/usr/bin/env Rscript
+        sparki_inputs <- c(
+            "${STD_REPORTS_DIR}", "${MPA_REPORTS_DIR}", "${ORGANISM}",
+            "${REF_DIR}", "${DOMAIN}", "${OUTDIR}", "${METADATA}",
+            "${SAMPLE_COL}", "${COLUMNS}", "${PREFIX}", "${VERBOSITY}",
+            "${SAMPLES_TO_REMOVE}"
+        )
+        names(sparki_inputs) <- c(
+            "--std-reports", "--mpa-reports", "--organism",
+            "--reference", "--domain", "--outdir", "--metadata",
+            "--sample-col", "--columns", "--prefix", "--verbosity",
+            "--samples-to-remove"
+        )
+        ARGS_FOR_SPARKI <- "";
+        for (input in sparki_inputs) {
+            arg_name <- names(sparki_inputs)[sparki_inputs == input]
+            if (input != "") {
+                ARGS_FOR_SPARKI <- paste0(ARGS_FOR_SPARKI, arg_name, " ", glue::double_quote(input), " ")
+            }
+        }
+        if ("${FLAGS}" != "") ARGS_FOR_SPARKI <- paste0(ARGS_FOR_SPARKI, "${FLAGS}")
+        writeLines(ARGS_FOR_SPARKI, "output.txt")
+        """
+}
+
+
+// Run SPARKI on a set of samples.
+// This process collates the Kraken2/KrakenTools results of a set
+// of samples and refines the output to help with the interpretation.
+process RUN_SPARKI {
+    module "sparki/0.1.0"
+   
+    input:
+        path(ARGS_FOR_SPARKI)
+
+    output:
+        path("*.txt")
+
+    script:
+        """
+        ARGS=\$(cat ${ARGS_FOR_SPARKI} | xargs)
+        echo \${ARGS} > "test.txt"
+        Rscript -e "SPARKI::cli()" \${ARGS}
         """
 
     stub:
