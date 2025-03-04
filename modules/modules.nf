@@ -91,8 +91,12 @@ process RUN_KRAKENTOOLS {
 
 }
 
-process PREPARE_FOR_SPARKI {
-
+// Run SPARKI on a set of samples.
+// This process collates the Kraken2/KrakenTools results of a set
+// of samples and refines the output to help with the interpretation.
+process RUN_SPARKI {
+    module "sparki/0.1.1"
+   
     input:
         val(ALL_STD_REPORTS)
         val(ALL_MPA_REPORTS)
@@ -112,54 +116,28 @@ process PREPARE_FOR_SPARKI {
         val(SAMPLES_TO_REMOVE)
         val(FLAGS)
 
-    output:
-        path("*.txt"), emit: args_for_sparki
-
     script:
+        def METADATA_ARG = METADATA ? "--metadata ${METADATA}" : ""
+        def SAMPLE_COL_ARG = SAMPLE_COL ? "--sample-col ${SAMPLE_COL}" : ""
+        def COLUMNS_ARG = COLUMNS ? "--columns ${COLUMNS}" : ""
+        def PREFIX_ARG = PREFIX ? "--prefix ${PREFIX}" : ""
+        def SAMPLES_TO_REMOVE_ARG = SAMPLES_TO_REMOVE ? "--samples-to-remove ${SAMPLES_TO_REMOVE}" : ""
+
         """
-        #!/usr/bin/env Rscript
-        sparki_inputs <- c(
-            "${STD_REPORTS_DIR}", "${MPA_REPORTS_DIR}", "${ORGANISM}",
-            "${REF_DIR}", "${DOMAIN}", "${OUTDIR}", "${METADATA}",
-            "${SAMPLE_COL}", "${COLUMNS}", "${PREFIX}", "${VERBOSITY}",
-            "${SAMPLES_TO_REMOVE}"
-        )
-        names(sparki_inputs) <- c(
-            "--std-reports", "--mpa-reports", "--organism",
-            "--reference", "--domain", "--outdir", "--metadata",
-            "--sample-col", "--columns", "--prefix", "--verbosity",
-            "--samples-to-remove"
-        )
-        ARGS_FOR_SPARKI <- "";
-        for (input in sparki_inputs) {
-            arg_name <- names(sparki_inputs)[sparki_inputs == input]
-            if (input != "") {
-                ARGS_FOR_SPARKI <- paste0(ARGS_FOR_SPARKI, arg_name, " ", glue::double_quote(input), " ")
-            }
-        }
-        if ("${FLAGS}" != "") ARGS_FOR_SPARKI <- paste0(ARGS_FOR_SPARKI, "${FLAGS}")
-        writeLines(ARGS_FOR_SPARKI, "output.txt")
-        """
-}
-
-
-// Run SPARKI on a set of samples.
-// This process collates the Kraken2/KrakenTools results of a set
-// of samples and refines the output to help with the interpretation.
-process RUN_SPARKI {
-    module "sparki/0.1.0"
-   
-    input:
-        path(ARGS_FOR_SPARKI)
-
-    output:
-        path("*.txt")
-
-    script:
-        """
-        ARGS=\$(cat ${ARGS_FOR_SPARKI} | xargs)
-        echo \${ARGS} > "test.txt"
-        Rscript -e "SPARKI::cli()" \${ARGS}
+        Rscript -e "SPARKI::cli()" \
+            --std-reports ${STD_REPORTS_DIR} \
+            --mpa-reports ${MPA_REPORTS_DIR} \
+            --organism ${ORGANISM} \
+            --reference ${REF_DIR}/inspect.txt \
+            --outdir ${OUTDIR} \
+            --domain ${DOMAIN} \
+            --verbosity ${VERBOSITY} \
+            ${METADATA_ARG} \
+            ${SAMPLE_COL_ARG} \
+            ${COLUMNS_ARG} \
+            ${PREFIX_ARG} \
+            ${SAMPLES_TO_REMOVE_ARG} \
+            
         """
 
     stub:
