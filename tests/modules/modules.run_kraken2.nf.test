@@ -1,0 +1,55 @@
+nextflow_process {
+
+    name "Test Process RUN_KRAKEN2"
+    script "modules/modules.nf"
+    process "RUN_KRAKEN2"
+
+    test("RUN_KRAKEN2 runs without errors and generates the expected output files") {
+
+        when {
+            params {
+                reference_database = "${baseDir}/tests/testdata/kraken2_ref_db"
+                confidence = "0.1"
+            }
+            process {
+                """
+                input[0] = Channel.fromFilePairs("${baseDir}/tests/testdata/fastq_files/*_{1,2}.fq.gz", checkIfExists: true, flat: true)
+                input[1] = file(params.reference_database)
+                input[2] = params.confidence
+                """
+            }
+        }
+
+        then {
+            // Check the process runs successfully.
+            assert process.success
+
+            // Check the process generates the expected number of tasks.
+            //
+            // For 3 samples, this number should be 3.
+            //
+            assert process.trace.tasks().size() == 3
+
+            // Take snapshot and check if it matches the previous one.
+            assert snapshot(process.out.std_report).match()
+
+            // Inspect the output channel...
+            with(process.out.std_report) {
+
+                // Check the channel emits 3 tuples.
+                assert size() == 3
+
+                // Inspect one of the tuples emitted by the channel...
+                with(get(0)) {
+
+                    // Check the tuple contains 2 values.
+                    assert size == 2
+
+                    // Check the tuple contains the expected values.
+                    assert get(0) ==~ "PR.*"
+                    assert get(1) ==~ ".*kraken"
+                }
+            }
+        }
+    }
+}

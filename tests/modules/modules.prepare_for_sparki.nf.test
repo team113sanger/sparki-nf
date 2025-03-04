@@ -1,0 +1,50 @@
+nextflow_process {
+
+    name "Test Process PREPARE_FOR_SPARKI"
+    script "modules/modules.nf"
+    process "PREPARE_FOR_SPARKI"
+
+    test("Should run without failures") {
+
+        when {
+
+            params {
+                std_reports = "${baseDir}/tests/testdata/std_reports"
+                mpa_reports = "${baseDir}/tests/testdata/mpa_reports"
+                organism = "'Homo sapiens'"
+                ref_dir = "${baseDir}/tests/kraken2_ref_db"
+                domain = "Viruses"
+                metadata = ""
+                sample_col = ""
+                columns = ""
+                prefix = ""
+                verbosity = "debug"
+                samples_to_remove = ""
+                flags = ""
+            }
+            process {
+                """
+                input[0] = params.std_reports
+                input[1] = params.mpa_reports
+                input[2] = params.std_reports
+                input[3] = params.mpa_reports
+                input[4] = params.organism
+                input[5] = params.ref_dir
+                input[6] = params.domain
+                input[7] = "${outputDir}"
+                input[8] = params.metadata
+                input[9] = params.sample_col
+                input[10] = params.columns
+                input[11] = params.prefix
+                input[12] = params.verbosity
+                input[13] = params.samples_to_remove
+                input[14] = params.flags
+                """
+            }
+        }
+
+        then {
+            assert process.success
+        }
+    }
+}
