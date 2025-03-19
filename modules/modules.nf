@@ -137,7 +137,7 @@ process RUN_SPARKI {
             ${COLUMNS_ARG} \
             ${PREFIX_ARG} \
             ${SAMPLES_TO_REMOVE_ARG} \
-            
+            ${FLAGS}
         """
 
     stub:
