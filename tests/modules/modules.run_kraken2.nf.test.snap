@@ -3,16 +3,16 @@
         "content": [
             [
                 [
-                    "PR43739a",
-                    "PR43739a.kraken:md5,3fa40f4c264a1b08b5431a5b734e19cb"
+                    "sample1",
+                    "sample1.kraken:md5,3fa40f4c264a1b08b5431a5b734e19cb"
                 ],
                 [
-                    "PR43896a",
-                    "PR43896a.kraken:md5,f68bffd8c48efc911a14cd19bf4e7b95"
+                    "sample2",
+                    "sample2.kraken:md5,8a26ffdb44c5c717876bcec862b64b23"
                 ],
                 [
-                    "PR47233a",
-                    "PR47233a.kraken:md5,8a26ffdb44c5c717876bcec862b64b23"
+                    "sample3",
+                    "sample3.kraken:md5,f68bffd8c48efc911a14cd19bf4e7b95"
                 ]
             ]
         ],
@@ -20,6 +20,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.10.4"
         },
-        "timestamp": "2025-01-29T08:46:56.286874"
+        "timestamp": "2025-03-19T12:05:57.669835571"
     }
 }
