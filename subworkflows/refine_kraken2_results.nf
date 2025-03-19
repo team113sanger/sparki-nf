@@ -38,5 +38,4 @@ workflow REFINE_KRAKEN2_RESULTS {
             samples_to_remove,       // Samples that should not be included in the SPARKI analysis.
             flags
         )
-
 }
