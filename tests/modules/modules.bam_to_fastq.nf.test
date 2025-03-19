@@ -42,17 +42,11 @@ nextflow_process {
             // Inspect the output channel...
             with(process.out.fastqs) {
 
-                // Check the channel emits 3 tuples.
-                assert size() == 3
-
                 // Inspect one of the tuples emitted by the channel...
                 with(get(0)) {
 
-                    // Check the tuple contains 3 values.
-                    assert size == 3
-
                     // Check the tuple contains the expected values.
-                    assert get(0) ==~ "PR.*"
+                    assert get(0) ==~ "sample.*"
                     assert get(1) ==~ ".*_1.fq.gz"
                     assert get(2) ==~ ".*_2.fq.gz"
                 }

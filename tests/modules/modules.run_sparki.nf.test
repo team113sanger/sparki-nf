@@ -4,7 +4,7 @@ nextflow_process {
     script "modules/modules.nf"
     process "RUN_SPARKI"
 
-    test("Should run without failures") {
+    test("Should run without failures when only the required arguments are provided") {
 
         when {
             params {
@@ -13,16 +13,10 @@ nextflow_process {
                 organism = "'Homo sapiens'"
                 ref_dir = "${baseDir}/tests/testdata"
                 domain = "Viruses"
-                metadata = ""
-                sample_col = ""
-                columns = ""
-                prefix = ""
-                verbosity = "debug"
-                samples_to_remove = ""
-                flags = ""
             }
             process {
                 """
+                // Required arguments.
                 input[0] = params.std_reports
                 input[1] = params.mpa_reports
                 input[2] = params.std_reports
@@ -31,9 +25,11 @@ nextflow_process {
                 input[5] = params.ref_dir
                 input[6] = params.domain
                 input[7] = "${outputDir}"
+
+                // Optional arguments.
                 input[8] = params.metadata
-                input[9] = params.sample_col
-                input[10] = params.columns
+                input[9] = params.metadata_sample_column
+                input[10] = params.metadata_columns
                 input[11] = params.prefix
                 input[12] = params.verbosity
                 input[13] = params.samples_to_remove
@@ -44,6 +40,57 @@ nextflow_process {
 
         then {
             assert process.success
+
+            // Check the process generates the expected number of tasks.
+            assert process.trace.tasks().size() == 1
+        }
+    }
+
+    test("Should run without failures when both the required and optional arguments are provided") {
+
+        when {
+            params {
+                std_reports = "${baseDir}/tests/testdata/std_reports"
+                mpa_reports = "${baseDir}/tests/testdata/mpa_reports"
+                organism = "'Homo sapiens'"
+                ref_dir = "${baseDir}/tests/testdata"
+                domain = "Viruses"
+                metadata = "${baseDir}/tests/testdata/metadata.csv"
+                metadata_sample_column = "Tumour_RNA"
+                metadata_columns = "Name,RNA_Analysis,Type,Diagnosis_short,Site_group"
+                prefix = "SebT"
+                verbosity = "info"
+                samples_to_remove = "${baseDir}/tests/testdata/samples_to_remove.txt"
+                flags = ""
+
+            }
+            process {
+                """
+                // Required arguments.
+                input[0] = params.std_reports
+                input[1] = params.mpa_reports
+                input[2] = params.std_reports
+                input[3] = params.mpa_reports
+                input[4] = params.organism
+                input[5] = params.ref_dir
+                input[6] = params.domain
+                input[7] = "${outputDir}"
+                
+                // Optional arguments.
+                input[8] = params.metadata
+                input[9] = params.metadata_sample_column
+                input[10] = params.metadata_columns
+                input[11] = params.prefix
+                input[12] = params.verbosity
+                input[13] = params.samples_to_remove
+                input[14] = params.flags
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.exitStatus == 0
 
             // Check the process generates the expected number of tasks.
             assert process.trace.tasks().size() == 1
