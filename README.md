@@ -33,8 +33,10 @@ The inputs for *sparki-nf* must be defined in a `json` file (e.g. `params.json`)
 - `metadata_sample_column`: this is the column in the metadata file that contains sample IDs; the sample IDs must match the names present in the SAM/BAM/CRAM files.
 - `metadata_columns`: comma-separated names of columns present in the metadata file.
 - `domain`: this is the domain (`Eukaryota`/`Viruses`/`Archaea`/`Bacteria`) that you are interested in; if interested in more than one domain, the domain names must be comma-separated (e.g. `Viruses,Bacteria`)
-- `prefix`: this the prefix that will be added to SPARKI's output files.
-- `options_for_sparki`: these are additional flags that can be provided to SPARKI (`--verbose`, `--include-eukaryotes`, and `--include-sample-names`); `--samples-to-remove` must also be provided here, and must be a text file containing a list of samples that should not be included in the final SPARKI outputs.
+- `prefix`: this is the prefix that will be added to SPARKI's output files.
+- `verbosity`: verbosity level (one of `trace`/`t`, `debug`/`d`, `info`/`i`, `success`/`s`, `warn`/`w`, `error`/`e`, `fatal`/`f`, or `off`/`o`).
+- `samples_to_remove`: a text file containing a list of samples that should not be included in the final SPARKI outputs.
+- `flags`: these are additional flags that can be provided to SPARKI (`--include-eukaryotes` and `--include-sample-names`).
 
 ## Usage
 
