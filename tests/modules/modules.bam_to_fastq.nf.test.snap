@@ -1,0 +1,28 @@
+{
+    "BAM_TO_FASTQ runs without errors and generates the expected output files": {
+        "content": [
+            [
+                [
+                    "sample1",
+                    "sample1_1.fq.gz:md5,942fd56188774ced266e3892d3977609",
+                    "sample1_2.fq.gz:md5,79182044a0107557a44e238baa63d634"
+                ],
+                [
+                    "sample2",
+                    "sample2_1.fq.gz:md5,8e8d708bbbf77fd6b87f0a50703eae97",
+                    "sample2_2.fq.gz:md5,d2dc3428b2f61f27026f4e59bceb1d2d"
+                ],
+                [
+                    "sample3",
+                    "sample3_1.fq.gz:md5,86e0911ff217640fdfd3e3617b042073",
+                    "sample3_2.fq.gz:md5,0abe3f771773886bb34a737dbfe628d4"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.4"
+        },
+        "timestamp": "2025-03-19T11:28:12.962118961"
+    }
+}

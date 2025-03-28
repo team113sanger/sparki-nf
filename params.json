@@ -4,11 +4,11 @@
     "reference_database": "/lustre/scratch124/casm/team113/ref/DERMATLAS/kraken2_complete_capped_march2023",
     "confidence": "0.1",
     "organism": "'Homo sapiens'",
+    "domain": "Viruses",
     "metadata": "/lustre/scratch124/casm/team113/users/jb62/projects/sparki-nf/test/metadata.csv",
     "metadata_sample_column": "Tumour_RNA",
     "metadata_columns": "Diagnosis_short,Site_group",
     "prefix": "SebT",
-    "domain": "Viruses",
-    "options_for_sparki": "--verbose --samples-to-remove /lustre/scratch124/casm/team113/users/jb62/projects/sparki-nf/test/samples_to_remove.txt",
+    "verbosity": "debug",
     "copy_mode": "symlink"
 }

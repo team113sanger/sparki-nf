@@ -2,3 +2,13 @@ test/*
 .nextflow
 .nextflow.log*
 work/*
+tests/testdata/bam_files/*
+tests/testdata/fastq_files/*
+tests/testdata/std_reports/*
+tests/testdata/mpa_reports/*
+tests/testdata/inspect.txt
+tests/testdata/metadata.csv
+tests/testdata/samples_to_remove.txt
+.nf-test/*
+.nf-test.log*
+nxf*

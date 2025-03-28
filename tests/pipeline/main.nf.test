@@ -1,0 +1,76 @@
+nextflow_pipeline {
+
+    name "Test Workflow main.nf"
+    script "main.nf"
+
+    test("The pipeline runs successfully when no optional inputs for SPARKI are provided") {
+
+        when {
+            params {
+                bam_files = "$baseDir/tests/testdata/bam_files/**.bam"
+                reference_database = "$baseDir/tests/testdata/kraken2_ref_db"
+                confidence = "0.1"
+                organism = "'Homo sapiens'"
+                domain = "Viruses"
+            }
+        }
+
+        then {
+            // Check the pipeline runs successfully.
+            assert workflow.success
+            assert workflow.exitStatus == 0
+
+            // Check the pipeline creates the correct number of tasks.
+            //
+            // For 3 input BAM files, the total number of tasks that should have
+            // been created by the time the pipeline finishes running is 10.
+            //
+            // Breakdown:
+            // - 3 BAM to FASTQ tasks;
+            // - 3 Kraken2 tasks;
+            // - 3 KrakenTools tasks;
+            // - 1 SPARKI task.
+            //
+            assert workflow.trace.tasks().size() == 10
+        }
+    }
+
+    test("The pipeline runs successfully when all optional inputs for SPARKI are provided") {
+
+        when {
+            params {
+                bam_files = "${baseDir}/tests/testdata/bam_files/**.bam"
+                reference_database = "${baseDir}/tests/testdata/kraken2_ref_db"
+                confidence = "0.1"
+                organism = "'Homo sapiens'"
+                domain = "Viruses"
+                metadata = "${baseDir}/tests/testdata/metadata.csv"
+                metadata_sample_column = "Tumour_RNA"
+                metadata_columns = "Name,RNA_Analysis,Type,Diagnosis_short,Site_group"
+                prefix = "SebT"
+                verbosity = "info"
+                samples_to_remove = "${baseDir}/tests/testdata/samples_to_remove.txt"
+                flags = ""
+            }
+        }
+
+        then {
+            // Check the pipeline runs successfully.
+            assert workflow.success
+            assert workflow.exitStatus == 0
+
+            // Check the pipeline creates the correct number of tasks.
+            //
+            // For 3 input BAM files, the total number of tasks that should have
+            // been created by the time the pipeline finishes running is 10.
+            //
+            // Breakdown:
+            // - 3 BAM to FASTQ tasks;
+            // - 3 Kraken2 tasks;
+            // - 3 KrakenTools tasks;
+            // - 1 SPARKI task.
+            //
+            assert workflow.trace.tasks().size() == 10
+        }
+    }
+}
