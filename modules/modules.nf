@@ -1,6 +1,6 @@
 process BAM_TO_FASTQ {
     publishDir "${params.outdir}/fastq"
-    module "samtools-1.14/python-3.12.0"
+    container "quay.io/biocontainers/samtools:1.22--h96c455f_0"
 
     input:
         tuple val(SAMPLE_ID), path(BAM)
@@ -33,7 +33,7 @@ process BAM_TO_FASTQ {
 // This process will generate a sample-level standard report.
 process RUN_KRAKEN2 {
     publishDir "${params.outdir}/std_reports"
-    module "kraken2/2.1.2"
+    container "quay.io/biocontainers/kraken2:2.1.5--pl5321h077b44d_0"
 
     input: 
         tuple val(SAMPLE_ID), path(FASTQ1), path(FASTQ2)
@@ -68,7 +68,7 @@ process RUN_KRAKEN2 {
 // This process will generate a sample-level MPA-style report.
 process RUN_KRAKENTOOLS {
     publishDir "${params.outdir}/mpa_reports"
-    module "krakentools/1.2.4"
+    container "quay.io/biocontainers/krakentools:1.2--pyh7e72e81_1"
 
     input: 
         tuple val(SAMPLE_ID), path(REPORT)
@@ -80,8 +80,7 @@ process RUN_KRAKENTOOLS {
         """
         kreport2mpa.py \
         --report ${REPORT} \
-        --output ${SAMPLE_ID}.kraken.mpa \
-        --keep-spaces
+        --output ${SAMPLE_ID}.kraken.mpa
         """
         
     stub:
@@ -95,7 +94,7 @@ process RUN_KRAKENTOOLS {
 // This process collates the Kraken2/KrakenTools results of a set
 // of samples and refines the output to help with the interpretation.
 process RUN_SPARKI {
-    module "sparki/0.1.1"
+    container "quay.io/team113sanger/sparki:0.1.3"
    
     input:
         val(ALL_STD_REPORTS)
