@@ -38,14 +38,24 @@ The inputs for *sparki-nf* must be defined in a `json` file (e.g. `params.json`)
 - `samples_to_remove`: a text file containing a list of samples that should not be included in the final SPARKI outputs.
 - `flags`: these are additional flags that can be provided to SPARKI (`--include-eukaryotes` and `--include-sample-names`).
 
+## Software requirements
+
+Briefly, the processes in *sparki-nf* are run using Docker images that are pulled from [quay.io](https://quay.io). Below is a breakdown of all the software that is required by the pipeline:
+- [samtools](https://academic.oup.com/bioinformatics/article/25/16/2078/204688), [Docker image](quay.io/biocontainers/samtools:1.22--h96c455f_0) v1.22
+- [Kraken2](https://github.com/DerrickWood/kraken2), [Docker image](quay.io/biocontainers/kraken2:2.1.5--pl5321h077b44d_0) v2.1.5
+- [KrakenTools](https://github.com/jenniferlu717/KrakenTools), [Docker image](quay.io/biocontainers/krakentools:1.2--pyh7e72e81_1) v1.2
+- SPARKI, [Docker image](quay.io/team113sanger/sparki:0.1.3) v0.1.3
+
 ## Basic usage
 
 ### Using Docker containers
+The `container` profile is the most basic and portable one, allowing *sparki-nf* to be run anywhere.
 ```
 nextflow run main.nf -params-file params.json -c nextflow.config -profile container
 ```
 
-### On the Sanger Farm
+### On the Sanger farm
+The `farm22` profile also relies on Docker containers, but it contains a setup to interact with the farm's queue system.
 ```
 nextflow run main.nf -params-file params.json -c nextflow.config -profile farm22
 ```
