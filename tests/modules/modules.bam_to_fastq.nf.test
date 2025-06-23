@@ -25,16 +25,16 @@ nextflow_process {
 
             // Check the process generates the expected number of tasks.
             //
-            // For 3 input BAM files, this number should be 3.
+            // For 1 input BAM files, this number should be 1.
             //
-            assert process.trace.tasks().size() == 3
+            assert process.trace.tasks().size() == 1
 
             // Check the output of the process contains the expected number
             // of tuples.
             //
-            // For 3 input BAM files, this number should be 3.
+            // For 1 input BAM files, this number should be 1.
             //
-            assert process.out.fastqs.size() == 3
+            assert process.out.fastqs.size() == 1
 
             // Take snapshot and check if it matches the previous one.
             assert snapshot(process.out.fastqs).match()
