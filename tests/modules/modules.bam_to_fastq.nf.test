@@ -1,6 +1,6 @@
 nextflow_process {
 
-    name "Test Process BAM_TO_FASTQ"
+    name "Test process BAM_TO_FASTQ"
     script "modules/modules.nf"
     process "BAM_TO_FASTQ"
 
@@ -25,14 +25,14 @@ nextflow_process {
 
             // Check the process generates the expected number of tasks.
             //
-            // For 1 input BAM files, this number should be 1.
+            // For 1 input BAM file, this number should be 1.
             //
             assert process.trace.tasks().size() == 1
 
             // Check the output of the process contains the expected number
             // of tuples.
             //
-            // For 1 input BAM files, this number should be 1.
+            // For 1 input BAM file, this number should be 1.
             //
             assert process.out.fastqs.size() == 1
 

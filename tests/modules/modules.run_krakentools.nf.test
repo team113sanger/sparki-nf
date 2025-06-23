@@ -1,6 +1,6 @@
 nextflow_process {
 
-    name "Test Process RUN_KRAKENTOOLS"
+    name "Test process RUN_KRAKENTOOLS"
     script "modules/modules.nf"
     process "RUN_KRAKENTOOLS"
 
@@ -24,16 +24,16 @@ nextflow_process {
 
             // Check the process generates the expected number of tasks.
             //
-            // For 3 input standard report files, this number should be 3.
+            // For 1 input standard report file, this number should be 1.
             //
-            assert process.trace.tasks().size() == 3
+            assert process.trace.tasks().size() == 1
 
             // Check the output of the process contains the expected number
             // of tuples.
             //
-            // For 3 input standard report files, this number should be 3.
+            // For 1 input standard report file, this number should be 1.
             //
-            assert process.out.mpa_report.size() == 3
+            assert process.out.mpa_report.size() == 1
 
             // Take snapshot and check if it matches the previous one.
             assert snapshot(process.out).match()
