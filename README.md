@@ -38,10 +38,14 @@ The inputs for *sparki-nf* must be defined in a `json` file (e.g. `params.json`)
 - `samples_to_remove`: a text file containing a list of samples that should not be included in the final SPARKI outputs.
 - `flags`: these are additional flags that can be provided to SPARKI (`--include-eukaryotes` and `--include-sample-names`).
 
-## Usage
+## Basic usage
 
+### Using Docker containers
 ```
-module load nextflow
+nextflow run main.nf -params-file params.json -c nextflow.config -profile container
+```
 
+### On the Sanger Farm
+```
 nextflow run main.nf -params-file params.json -c nextflow.config -profile farm22
 ```
