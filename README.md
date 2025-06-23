@@ -40,6 +40,8 @@ The inputs for *sparki-nf* must be defined in a `json` file (e.g. `params.json`)
 
 ## Software requirements
 
+In order to run *sparki-nf*, users will need to have installed (NextFlow)[https://www.nextflow.io] in their machine.
+
 Briefly, the processes in *sparki-nf* are run using Docker images that are pulled from [quay.io](https://quay.io). Below is a breakdown of all the software that is required by the pipeline:
 - [samtools](https://academic.oup.com/bioinformatics/article/25/16/2078/204688), [Docker image](quay.io/biocontainers/samtools:1.22--h96c455f_0) v1.22
 - [Kraken2](https://github.com/DerrickWood/kraken2), [Docker image](quay.io/biocontainers/kraken2:2.1.5--pl5321h077b44d_0) v2.1.5
@@ -50,12 +52,42 @@ Briefly, the processes in *sparki-nf* are run using Docker images that are pulle
 
 ### Using Docker containers
 The `container` profile is the most basic and portable one, allowing *sparki-nf* to be run anywhere.
-```
+```bash
 nextflow run main.nf -params-file params.json -c nextflow.config -profile container
 ```
 
 ### On the Sanger farm
 The `farm22` profile also relies on Docker containers, but it contains a setup to interact with the farm's queue system.
-```
+```bash
 nextflow run main.nf -params-file params.json -c nextflow.config -profile farm22
 ```
+
+## For developers
+
+### Testing
+
+To run tests for *sparki-nf*, ensure you have (nf-test)[https://www.nf-test.com] installed in your machine.
+
+#### Running process-level tests
+
+```bash
+# Process BAM_TO_FASTQ
+nf-test test modules tests/modules/modules.bam_to_fastq.nf.test --verbose --profile container --config nf-test.config
+
+# Process RUN_KRAKEN2
+nf-test test modules tests/modules/modules.run_kraken2.nf.test --verbose --profile container --config nf-test.config
+
+# Process RUN_KRAKENTOOLS
+nf-test test modules tests/modules/modules.run_krakentools.nf.test --verbose --profile container --config nf-test.config
+
+# Process RUN_SPARKI
+nf-test test modules tests/modules/modules.run_sparki.nf.test --verbose --profile container --config nf-test.config
+```
+
+#### Running pipeline-level tests
+
+```bash
+nf-test test pipeline tests/pipeline/main.nf.test --verbose --profile container --config nf-test.config
+```
+
+
