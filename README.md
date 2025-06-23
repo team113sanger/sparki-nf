@@ -40,7 +40,7 @@ The inputs for *sparki-nf* must be defined in a `json` file (e.g. `params.json`)
 
 ## Software requirements
 
-In order to run *sparki-nf*, users will need to have installed (NextFlow)[https://www.nextflow.io] in their machine.
+In order to run *sparki-nf*, users will need to have installed [NextFlow](https://www.nextflow.io) in their machine.
 
 Briefly, the processes in *sparki-nf* are run using Docker images that are pulled from [quay.io](https://quay.io). Below is a breakdown of all the software that is required by the pipeline:
 - [samtools](https://academic.oup.com/bioinformatics/article/25/16/2078/204688), [Docker image](quay.io/biocontainers/samtools:1.22--h96c455f_0) v1.22
@@ -66,7 +66,7 @@ nextflow run main.nf -params-file params.json -c nextflow.config -profile farm22
 
 ### Testing
 
-To run tests for *sparki-nf*, ensure you have (nf-test)[https://www.nf-test.com] installed in your machine.
+To run tests for *sparki-nf*, ensure you have [nf-test](https://www.nf-test.com) installed in your machine.
 
 #### Running process-level tests
 
