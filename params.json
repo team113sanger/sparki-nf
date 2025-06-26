@@ -1,14 +1,10 @@
 {
-    "outdir": "/home/ubuntu/git_clones/sparki-nf/tests/testdata/",
+    "outdir": "/home/ubuntu/git_clones/sparki-nf/run_manually/",
     "bam_files": "/home/ubuntu/git_clones/sparki-nf/tests/testdata/bam_files/**.bam",
     "reference_database": "/home/ubuntu/git_clones/sparki-nf/tests/testdata/kraken2_reference",
     "confidence": "0.1",
     "organism": "'Homo sapiens'",
     "domain": "Viruses",
-    "metadata": "/home/ubuntu/git_clones/sparki-nf/tests/testdata/metadata.csv",
-    "metadata_sample_column": "sample_id",
-    "metadata_columns": "date,country",
-    "prefix": "Test",
     "verbosity": "debug",
     "copy_mode": "symlink"
 }

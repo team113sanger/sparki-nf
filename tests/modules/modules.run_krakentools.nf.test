@@ -21,19 +21,20 @@ nextflow_process {
         then {
             // Check the process runs successfully.
             assert process.success
+            assert process.exitStatus == 0
 
             // Check the process generates the expected number of tasks.
             //
-            // For 1 input standard report file, this number should be 1.
+            // For 2 input standard report files, this number should be 2.
             //
-            assert process.trace.tasks().size() == 1
+            assert process.trace.tasks().size() == 2
 
             // Check the output of the process contains the expected number
             // of tuples.
             //
-            // For 1 input standard report file, this number should be 1.
+            // For 2 input standard report files, this number should be 2.
             //
-            assert process.out.mpa_report.size() == 1
+            assert process.out.mpa_report.size() == 2
 
             // Take snapshot and check if it matches the previous one.
             assert snapshot(process.out).match()

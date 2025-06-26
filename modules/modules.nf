@@ -13,13 +13,13 @@ process BAM_TO_FASTQ {
         samtools view -b -f 4 ${BAM} | \
         samtools collate - -u -O | \
         samtools fastq \
-        -c 6 \
-        -@ 8 \
-        -1 ${SAMPLE_ID}_1.fq.gz \
-        -2 ${SAMPLE_ID}_2.fq.gz \
-        -0 /dev/null \
-        -s /dev/null \
-        -n
+            -c 6 \
+            -@ 8 \
+            -1 ${SAMPLE_ID}_1.fq.gz \
+            -2 ${SAMPLE_ID}_2.fq.gz \
+            -0 /dev/null \
+            -s /dev/null \
+            -n
         """
 
     stub:
@@ -46,15 +46,15 @@ process RUN_KRAKEN2 {
     script: 
         """
         kraken2 \
-        --paired \
-        --gzip-compressed \
-        --use-names \
-        --confidence ${C_SCORE} \
-        --db ${REF_DIR} \
-        --report ${SAMPLE_ID}.kraken \
-        --report-minimizer-data \
-        --output /dev/null \
-        ${FASTQ1} ${FASTQ2} 
+            --paired \
+            --gzip-compressed \
+            --use-names \
+            --confidence ${C_SCORE} \
+            --db ${REF_DIR} \
+            --report ${SAMPLE_ID}.kraken \
+            --report-minimizer-data \
+            --output /dev/null \
+            ${FASTQ1} ${FASTQ2} 
         """
         
     stub:
@@ -68,7 +68,7 @@ process RUN_KRAKEN2 {
 // This process will generate a sample-level MPA-style report.
 process RUN_KRAKENTOOLS {
     publishDir "${params.outdir}/mpa_reports"
-    container "quay.io/biocontainers/krakentools:1.2--pyh7e72e81_1"
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/krakentools:1.2.4"
 
     input: 
         tuple val(SAMPLE_ID), path(REPORT)
@@ -79,8 +79,8 @@ process RUN_KRAKENTOOLS {
     script: 
         """
         kreport2mpa.py \
-        --report ${REPORT} \
-        --output ${SAMPLE_ID}.kraken.mpa
+            --report ${REPORT} \
+            --output ${SAMPLE_ID}.kraken.mpa
         """
         
     stub:
@@ -94,7 +94,7 @@ process RUN_KRAKENTOOLS {
 // This process collates the Kraken2/KrakenTools results of a set
 // of samples and refines the output to help with the interpretation.
 process RUN_SPARKI {
-    container "quay.io/team113sanger/sparki:0.1.3"
+    container "sparki:local"
    
     input:
         val(ALL_STD_REPORTS)
