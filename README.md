@@ -1,8 +1,6 @@
 # :sparkles: *sparki-nf*: an end-to-end pathogen identification pipeline :sparkles:
 
-## Introduction
-
-*sparki-nf* is an end-to-end pathogen identification pipeline written in NextFlow that can be used to analyse data from any projects, such as DERMATLAS and FUR. The pipeline leverages the Kraken2 software, whose methodology is briefly described below.
+*sparki-nf* is an end-to-end pathogen identification pipeline written in NextFlow.
 
 ## Before you get started
 
