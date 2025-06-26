@@ -1,6 +1,6 @@
 nextflow_process {
 
-    name "Test Process RUN_KRAKEN2"
+    name "Test process RUN_KRAKEN2"
     script "modules/modules.nf"
     process "RUN_KRAKEN2"
 
@@ -9,7 +9,7 @@ nextflow_process {
         when {
             params {
                 fastq_files = "${baseDir}/tests/testdata/fastq_files/*_{1,2}.fq.gz"
-                reference_database = "${baseDir}/tests/testdata/kraken2_ref_db"
+                reference_database = "${baseDir}/tests/testdata/kraken2_reference"
                 confidence = "0.1"
             }
             process {
@@ -24,20 +24,21 @@ nextflow_process {
         then {
             // Check the process runs successfully.
             assert process.success
+            assert process.exitStatus == 0
 
             // Check the process generates the expected number of tasks.
             //
-            // For 3 input FASTQ files, this number should be 3.
+            // For 2 input FASTQ file pairs, this number should be 2.
             //
-            assert process.trace.tasks().size() == 3
+            assert process.trace.tasks().size() == 2
 
 
             // Check the output of the process contains the expected number
             // of tuples.
             //
-            // For 3 input FASTQ files, this number should be 3.
+            // For 2 input FASTQ file pair, this number should be 2.
             //
-            assert process.out.std_report.size() == 3
+            assert process.out.std_report.size() == 2
 
             // Take snapshot and check if it matches the previous one.
             assert snapshot(process.out.std_report).match()

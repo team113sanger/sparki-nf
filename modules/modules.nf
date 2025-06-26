@@ -1,6 +1,6 @@
 process BAM_TO_FASTQ {
     publishDir "${params.outdir}/fastq"
-    module "samtools-1.14/python-3.12.0"
+    container "quay.io/biocontainers/samtools:1.22--h96c455f_0"
 
     input:
         tuple val(SAMPLE_ID), path(BAM)
@@ -13,13 +13,13 @@ process BAM_TO_FASTQ {
         samtools view -b -f 4 ${BAM} | \
         samtools collate - -u -O | \
         samtools fastq \
-        -c 6 \
-        -@ 8 \
-        -1 ${SAMPLE_ID}_1.fq.gz \
-        -2 ${SAMPLE_ID}_2.fq.gz \
-        -0 /dev/null \
-        -s /dev/null \
-        -n
+            -c 6 \
+            -@ 8 \
+            -1 ${SAMPLE_ID}_1.fq.gz \
+            -2 ${SAMPLE_ID}_2.fq.gz \
+            -0 /dev/null \
+            -s /dev/null \
+            -n
         """
 
     stub:
@@ -33,7 +33,7 @@ process BAM_TO_FASTQ {
 // This process will generate a sample-level standard report.
 process RUN_KRAKEN2 {
     publishDir "${params.outdir}/std_reports"
-    module "kraken2/2.1.2"
+    container "quay.io/biocontainers/kraken2:2.1.5--pl5321h077b44d_0"
 
     input: 
         tuple val(SAMPLE_ID), path(FASTQ1), path(FASTQ2)
@@ -46,15 +46,15 @@ process RUN_KRAKEN2 {
     script: 
         """
         kraken2 \
-        --paired \
-        --gzip-compressed \
-        --use-names \
-        --confidence ${C_SCORE} \
-        --db ${REF_DIR} \
-        --report ${SAMPLE_ID}.kraken \
-        --report-minimizer-data \
-        --output /dev/null \
-        ${FASTQ1} ${FASTQ2} 
+            --paired \
+            --gzip-compressed \
+            --use-names \
+            --confidence ${C_SCORE} \
+            --db ${REF_DIR} \
+            --report ${SAMPLE_ID}.kraken \
+            --report-minimizer-data \
+            --output /dev/null \
+            ${FASTQ1} ${FASTQ2} 
         """
         
     stub:
@@ -68,7 +68,7 @@ process RUN_KRAKEN2 {
 // This process will generate a sample-level MPA-style report.
 process RUN_KRAKENTOOLS {
     publishDir "${params.outdir}/mpa_reports"
-    module "krakentools/1.2.4"
+    container "gitlab-registry.internal.sanger.ac.uk/dermatlas/krakentools:1.2.4"
 
     input: 
         tuple val(SAMPLE_ID), path(REPORT)
@@ -79,9 +79,8 @@ process RUN_KRAKENTOOLS {
     script: 
         """
         kreport2mpa.py \
-        --report ${REPORT} \
-        --output ${SAMPLE_ID}.kraken.mpa \
-        --keep-spaces
+            --report ${REPORT} \
+            --output ${SAMPLE_ID}.kraken.mpa
         """
         
     stub:
@@ -95,7 +94,7 @@ process RUN_KRAKENTOOLS {
 // This process collates the Kraken2/KrakenTools results of a set
 // of samples and refines the output to help with the interpretation.
 process RUN_SPARKI {
-    module "sparki/0.1.1"
+    container "sparki:local"
    
     input:
         val(ALL_STD_REPORTS)

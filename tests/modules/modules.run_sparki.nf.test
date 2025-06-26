@@ -1,6 +1,6 @@
 nextflow_process {
 
-    name "Test Process RUN_SPARKI"
+    name "Test process RUN_SPARKI"
     script "modules/modules.nf"
     process "RUN_SPARKI"
 
@@ -11,35 +11,37 @@ nextflow_process {
                 std_reports = "${baseDir}/tests/testdata/std_reports"
                 mpa_reports = "${baseDir}/tests/testdata/mpa_reports"
                 organism = "'Homo sapiens'"
-                ref_dir = "${baseDir}/tests/testdata"
+                ref_dir = "${baseDir}/tests/testdata/kraken2_reference"
                 domain = "Viruses"
             }
             process {
                 """
                 // Required arguments.
-                input[0] = params.std_reports
-                input[1] = params.mpa_reports
-                input[2] = params.std_reports
-                input[3] = params.mpa_reports
-                input[4] = params.organism
-                input[5] = params.ref_dir
-                input[6] = params.domain
-                input[7] = "${outputDir}"
+                input[0] = params.std_reports  // Standard reports directory (pipeline flow control).
+                input[1] = params.mpa_reports  // MPA reports directory (pipeline flow control).
+                input[2] = params.std_reports  // Standard reports directory (actual SPARKI input).
+                input[3] = params.mpa_reports  // MPA reports directory (actual SPARKI input).
+                input[4] = params.organism     // Organism being analysed.
+                input[5] = params.ref_dir      // Kraken2 reference database where 'inspect.txt' can be found.
+                input[6] = params.domain       // Domain of interest.
+                input[7] = "${outputDir}"      // Output directory.
 
-                // Optional arguments.
-                input[8] = params.metadata
-                input[9] = params.metadata_sample_column
-                input[10] = params.metadata_columns
-                input[11] = params.prefix
-                input[12] = params.verbosity
-                input[13] = params.samples_to_remove
-                input[14] = params.flags
+                // Optional arguments that should be picked up from nextflow.config.
+                input[8] = params.metadata                  // Metadata table.
+                input[9] = params.metadata_sample_column    // Sample column in metadata table.
+                input[10] = params.metadata_columns         // Other columns in metadata table.
+                input[11] = params.prefix                   // Prefix for output files.
+                input[12] = params.verbosity                // Verbosity level.
+                input[13] = params.samples_to_remove        // List of samples to be removed.
+                input[14] = params.flags                    // Additional flags.
                 """
             }
         }
 
         then {
+            // Check the process runs successfully.
             assert process.success
+            assert process.exitStatus == 0
 
             // Check the process generates the expected number of tasks.
             assert process.trace.tasks().size() == 1
@@ -53,12 +55,12 @@ nextflow_process {
                 std_reports = "${baseDir}/tests/testdata/std_reports"
                 mpa_reports = "${baseDir}/tests/testdata/mpa_reports"
                 organism = "'Homo sapiens'"
-                ref_dir = "${baseDir}/tests/testdata"
+                ref_dir = "${baseDir}/tests/testdata/kraken2_reference"
                 domain = "Viruses"
                 metadata = "${baseDir}/tests/testdata/metadata.csv"
-                metadata_sample_column = "Tumour_RNA"
-                metadata_columns = "Name,RNA_Analysis,Type,Diagnosis_short,Site_group"
-                prefix = "SebT"
+                metadata_sample_column = "sample"
+                metadata_columns = "date,country"
+                prefix = "test"
                 verbosity = "info"
                 samples_to_remove = "${baseDir}/tests/testdata/samples_to_remove.txt"
                 flags = ""
@@ -67,28 +69,29 @@ nextflow_process {
             process {
                 """
                 // Required arguments.
-                input[0] = params.std_reports
-                input[1] = params.mpa_reports
-                input[2] = params.std_reports
-                input[3] = params.mpa_reports
-                input[4] = params.organism
-                input[5] = params.ref_dir
-                input[6] = params.domain
-                input[7] = "${outputDir}"
+                input[0] = params.std_reports  // Standard reports directory (pipeline flow control).
+                input[1] = params.mpa_reports  // MPA reports directory (pipeline flow control).
+                input[2] = params.std_reports  // Standard reports directory (actual SPARKI input).
+                input[3] = params.mpa_reports  // MPA reports directory (actual SPARKI input).
+                input[4] = params.organism     // Organism being analysed.
+                input[5] = params.ref_dir      // Kraken2 reference database where 'inspect.txt' can be found.
+                input[6] = params.domain       // Domain of interest.
+                input[7] = "${outputDir}"      // Output directory.
                 
                 // Optional arguments.
-                input[8] = params.metadata
-                input[9] = params.metadata_sample_column
-                input[10] = params.metadata_columns
-                input[11] = params.prefix
-                input[12] = params.verbosity
-                input[13] = params.samples_to_remove
-                input[14] = params.flags
+                input[8] = params.metadata                  // Metadata table.
+                input[9] = params.metadata_sample_column    // Sample column in metadata table.
+                input[10] = params.metadata_columns         // Other columns in metadata table.
+                input[11] = params.prefix                   // Prefix for output files.
+                input[12] = params.verbosity                // Verbosity level.
+                input[13] = params.samples_to_remove        // List of samples to be removed.
+                input[14] = params.flags                    // Additional flags.
                 """
             }
         }
 
         then {
+            // Check the process runs successfully.
             assert process.success
             assert process.exitStatus == 0
 
