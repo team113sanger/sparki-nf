@@ -4,9 +4,16 @@
 
 *sparki-nf* is an end-to-end pathogen identification pipeline written in NextFlow that can be used to analyse data from any projects, such as DERMATLAS and FUR. The pipeline leverages the Kraken2 software, whose methodology is briefly described below.
 
-### An overview of Kraken2 :bug:
+## Before you get started
 
-Briefly, Kraken2 [(Wood *et al*., 2019)](https://github.com/DerrickWood/kraken2) splits the sequencing data from a FASTQ file into *k*-mers, from which minimisers are obtained. By calculating a compact hash code for each minimiser, Kraken2 is then able to assign each *k*-mer the appropriate lower common ancestor taxon. When run with the `--report` mode, Kraken2 generates a sample report (herein referred to as 'standard' report) containing all taxa, at different taxonomic ranks, which were identified in the sample; furthermore, if run with the flag `--report-minimizer-data`, the tool also outputs the number of unique minimisers associated with each taxon that were found in the sample. Alternatively, Kraken2 can be run with the `--report` mode and the flag `--use-mpa-style` to generate MetaPhlAn2 (MPA)-style reports. MPA-style reports can also be generated from 'standard' reports with KrakenTools [(Lu *et al*., 2022)](https://github.com/jenniferlu717/KrakenTools).
+`sparki-nf` integrates [Kraken2](https://github.com/DerrickWood/kraken2), [KrakenTools](https://github.com/jenniferlu717/KrakenTools), and [SPARKI](https://github.com/team113sanger/sparki).
+
+| Tool | Repository | Goal |
+| --- | --- | --- |
+| SPARKI | [SPARKI repo](https://github.com/team113sanger/sparki) | Framework to help interpret Kraken2 outputs |
+| sparki-nf | [sparki-nf repo](https://github.com/team113sanger/sparki-nf) | Pipeline integrating Kraken2, KrakenTools, and SPARKI |
+| map-to-genome | [map-to-genome repo](https://github.com/team113sanger/map-to-genome) | Pipeline for validation of SPARKI hits |
+
 
 ## Pipeline summary
 
