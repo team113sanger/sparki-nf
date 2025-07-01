@@ -7,9 +7,29 @@ process BAM_TO_FASTQ {
 
     output:
         tuple val(SAMPLE_ID), path("*_1.fq.gz"), path("*_2.fq.gz"), emit: fastqs
+        tuple val(SAMPLE_ID), path("*.csv"), emit: pre_filtering_mapping_stats
 
     script:
         """
+        #**** Get some mapping stats before generating the FASTQ files ****#
+
+        # Count all reads.
+        ALL_COUNT=\$(samtools view -c ${BAM})
+
+        # Count unmapped reads.
+        UNMAPPED_COUNT=\$(samtools view -c -f 4 ${BAM})
+
+        # Count mapped reads.
+        MAPPED_COUNT=\$(samtools view -c -F 4 ${BAM})
+
+        # Save values to output file.
+        echo "all_count,unmapped_count,mapped_count" \
+            > ${SAMPLE_ID}_mapping_stats_pre_filtering.csv
+        echo "\${ALL_COUNT},\${UNMAPPED_COUNT},\${MAPPED_COUNT}" \
+            >> ${SAMPLE_ID}_mapping_stats_pre_filtering.csv
+
+        #**** Filter out mapped reads and generate FASTQ files ****#
+
         samtools view -b -f 4 ${BAM} | \
         samtools collate - -u -O | \
         samtools fastq \
@@ -94,7 +114,7 @@ process RUN_KRAKENTOOLS {
 // This process collates the Kraken2/KrakenTools results of a set
 // of samples and refines the output to help with the interpretation.
 process RUN_SPARKI {
-    container "sparki:local"
+    container "quay.io/team113sanger/sparki:1.0.0"
    
     input:
         val(ALL_STD_REPORTS)
