@@ -1,14 +1,14 @@
 nextflow_pipeline {
 
-    name "Test Workflow main.nf"
+    name "Test workflow main.nf"
     script "main.nf"
 
     test("The pipeline runs successfully when no optional inputs for SPARKI are provided") {
 
         when {
             params {
-                bam_files = "$baseDir/tests/testdata/bam_files/**.bam"
-                reference_database = "$baseDir/tests/testdata/kraken2_ref_db"
+                bam_files = "${baseDir}/tests/testdata/bam_files/**.bam"
+                reference_database = "${baseDir}/tests/testdata/kraken2_reference"
                 confidence = "0.1"
                 organism = "'Homo sapiens'"
                 domain = "Viruses"
@@ -23,15 +23,15 @@ nextflow_pipeline {
             // Check the pipeline creates the correct number of tasks.
             //
             // For 3 input BAM files, the total number of tasks that should have
-            // been created by the time the pipeline finishes running is 10.
+            // been created by the time the pipeline finishes running is 7.
             //
             // Breakdown:
-            // - 3 BAM to FASTQ tasks;
-            // - 3 Kraken2 tasks;
-            // - 3 KrakenTools tasks;
+            // - 2 BAM to FASTQ tasks;
+            // - 2 Kraken2 tasks;
+            // - 2 KrakenTools tasks;
             // - 1 SPARKI task.
             //
-            assert workflow.trace.tasks().size() == 10
+            assert workflow.trace.tasks().size() == 7
         }
     }
 
@@ -40,14 +40,14 @@ nextflow_pipeline {
         when {
             params {
                 bam_files = "${baseDir}/tests/testdata/bam_files/**.bam"
-                reference_database = "${baseDir}/tests/testdata/kraken2_ref_db"
+                reference_database = "${baseDir}/tests/testdata/kraken2_reference"
                 confidence = "0.1"
                 organism = "'Homo sapiens'"
                 domain = "Viruses"
                 metadata = "${baseDir}/tests/testdata/metadata.csv"
-                metadata_sample_column = "Tumour_RNA"
-                metadata_columns = "Name,RNA_Analysis,Type,Diagnosis_short,Site_group"
-                prefix = "SebT"
+                metadata_sample_column = "sample"
+                metadata_columns = "date,country"
+                prefix = "test"
                 verbosity = "info"
                 samples_to_remove = "${baseDir}/tests/testdata/samples_to_remove.txt"
                 flags = ""
@@ -62,15 +62,15 @@ nextflow_pipeline {
             // Check the pipeline creates the correct number of tasks.
             //
             // For 3 input BAM files, the total number of tasks that should have
-            // been created by the time the pipeline finishes running is 10.
+            // been created by the time the pipeline finishes running is 7.
             //
             // Breakdown:
-            // - 3 BAM to FASTQ tasks;
-            // - 3 Kraken2 tasks;
-            // - 3 KrakenTools tasks;
+            // - 2 BAM to FASTQ tasks;
+            // - 2 Kraken2 tasks;
+            // - 2 KrakenTools tasks;
             // - 1 SPARKI task.
             //
-            assert workflow.trace.tasks().size() == 10
+            assert workflow.trace.tasks().size() == 7
         }
     }
 }
