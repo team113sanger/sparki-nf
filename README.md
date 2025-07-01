@@ -72,6 +72,8 @@ The `farm22` profile also relies on Docker containers, but it contains a setup t
 nextflow run main.nf -params-file params.json -c nextflow.config -profile farm22
 ```
 
+## Additional information
+
 <details>
 
 <summary>For developers</summary>
