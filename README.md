@@ -1,4 +1,4 @@
-# :sparkles: `sparki-nf`: an end-to-end pathogen identification pipeline :sparkles:
+# :sparkles: sparki-nf: an end-to-end pathogen identification pipeline :sparkles:
 
 `sparki-nf` is an end-to-end pathogen identification pipeline written in NextFlow.
 
