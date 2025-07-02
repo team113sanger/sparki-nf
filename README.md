@@ -94,6 +94,10 @@ git add nextflow.config
 git commit -m "Bump pipeline version to 1.0.0"
 ```
 ```bash
+git add CHANGELOG.md
+git commit -m "Update changelog"
+```
+```bash
 git hf push
 ```
 
