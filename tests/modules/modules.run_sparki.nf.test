@@ -8,9 +8,9 @@ nextflow_process {
 
         when {
             params {
-                std_reports = "${baseDir}/tests/testdata/std_reports"
+                std_reports = "${baseDir}/tests/testdata/standard_reports"
                 mpa_reports = "${baseDir}/tests/testdata/mpa_reports"
-                organism = "'Homo sapiens'"
+                organism = "'Homo sapiens'" // Using 'Homo sapiens' only for testing purposes, as 'Felis catus' is not present.
                 ref_dir = "${baseDir}/tests/testdata/kraken2_reference"
                 domain = "Viruses"
             }
@@ -52,15 +52,15 @@ nextflow_process {
 
         when {
             params {
-                std_reports = "${baseDir}/tests/testdata/std_reports"
+                std_reports = "${baseDir}/tests/testdata/standard_reports"
                 mpa_reports = "${baseDir}/tests/testdata/mpa_reports"
-                organism = "'Homo sapiens'"
+                organism = "'Homo sapiens'" // Using 'Homo sapiens' only for testng purposes, as 'Felis catus' is not present.
                 ref_dir = "${baseDir}/tests/testdata/kraken2_reference"
                 domain = "Viruses"
-                metadata = "${baseDir}/tests/testdata/metadata.csv"
+                metadata = "${baseDir}/tests/testdata/metadata_table.csv"
                 metadata_sample_column = "sample"
-                metadata_columns = "date,country"
-                prefix = "test"
+                metadata_columns = "mock_column1,mock_column2"
+                prefix = "ERP143204_feline_basal_cell_carcinoma"
                 verbosity = "info"
                 samples_to_remove = "${baseDir}/tests/testdata/samples_to_remove.txt"
                 flags = ""

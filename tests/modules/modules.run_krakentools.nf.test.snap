@@ -4,22 +4,30 @@
             {
                 "0": [
                     [
-                        "sample1",
-                        "sample1.kraken.mpa:md5,ec4ce3299ab3c909080a8db415088ae5"
+                        "ERR12549242",
+                        "ERR12549242.kraken.mpa:md5,4cad85b31aca1b43a8050a0fbd891e9b"
                     ],
                     [
-                        "sample2",
-                        "sample2.kraken.mpa:md5,ec4ce3299ab3c909080a8db415088ae5"
+                        "ERR12549245",
+                        "ERR12549245.kraken.mpa:md5,3b6d958d6b484cf14f96d023ae236c7d"
+                    ],
+                    [
+                        "ERR12549246",
+                        "ERR12549246.kraken.mpa:md5,dd331a2631f9c2b0e5f4ed9473fc76b3"
                     ]
                 ],
                 "mpa_report": [
                     [
-                        "sample1",
-                        "sample1.kraken.mpa:md5,ec4ce3299ab3c909080a8db415088ae5"
+                        "ERR12549242",
+                        "ERR12549242.kraken.mpa:md5,4cad85b31aca1b43a8050a0fbd891e9b"
                     ],
                     [
-                        "sample2",
-                        "sample2.kraken.mpa:md5,ec4ce3299ab3c909080a8db415088ae5"
+                        "ERR12549245",
+                        "ERR12549245.kraken.mpa:md5,3b6d958d6b484cf14f96d023ae236c7d"
+                    ],
+                    [
+                        "ERR12549246",
+                        "ERR12549246.kraken.mpa:md5,dd331a2631f9c2b0e5f4ed9473fc76b3"
                     ]
                 ]
             }
@@ -28,6 +36,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.10.5"
         },
-        "timestamp": "2025-06-24T13:13:33.495029739"
+        "timestamp": "2025-10-10T10:50:30.83744507"
     }
 }

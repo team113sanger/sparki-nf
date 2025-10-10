@@ -8,11 +8,11 @@ nextflow_process {
 
         when {
             params {
-                bam_files = "${baseDir}/tests/testdata/bam_files/**.bam"
+                cram_files = "${baseDir}/tests/testdata/cram_files/**.cram"
             }
             process {
                 """
-                input[0] = Channel.fromPath(params.bam_files, checkIfExists: true)
+                input[0] = Channel.fromPath(params.cram_files, checkIfExists: true)
                     .map { file -> tuple(file.simpleName, file) }
                 """
             }
@@ -26,16 +26,16 @@ nextflow_process {
 
             // Check the process generates the expected number of tasks.
             //
-            // For 2 input BAM file, this number should be 2.
+            // For 3 input CRAM file, this number should be 3.
             //
-            assert process.trace.tasks().size() == 2
+            assert process.trace.tasks().size() == 3
 
             // Check the output of the process contains the expected number
             // of tuples.
             //
-            // For 2 input BAM files, this number should be 2.
+            // For 3 input CRAM files, this number should be 3.
             //
-            assert process.out.fastqs.size() == 2
+            assert process.out.fastqs.size() == 3
 
             // Take snapshot and check if it matches the previous one.
             assert snapshot(process.out.fastqs).match()
@@ -47,7 +47,7 @@ nextflow_process {
                 with(get(0)) {
 
                     // Check the tuple contains the expected values.
-                    assert get(0) ==~ "sample.*"
+                    assert get(0) ==~ "46643_1.*"
                     assert get(1) ==~ ".*_1.fq.gz"
                     assert get(2) ==~ ".*_2.fq.gz"
                 }

@@ -8,7 +8,7 @@ nextflow_process {
 
         when {
             params {
-                std_reports = "${baseDir}/tests/testdata/std_reports/**.kraken"
+                std_reports = "${baseDir}/tests/testdata/standard_reports/**.kraken"
             }
             process {
                 """
@@ -25,16 +25,16 @@ nextflow_process {
 
             // Check the process generates the expected number of tasks.
             //
-            // For 2 input standard report files, this number should be 2.
+            // For 3 input standard report files, this number should be 3.
             //
-            assert process.trace.tasks().size() == 2
+            assert process.trace.tasks().size() == 3
 
             // Check the output of the process contains the expected number
             // of tuples.
             //
-            // For 2 input standard report files, this number should be 2.
+            // For 3 input standard report files, this number should be 3.
             //
-            assert process.out.mpa_report.size() == 2
+            assert process.out.mpa_report.size() == 3
 
             // Take snapshot and check if it matches the previous one.
             assert snapshot(process.out).match()
@@ -46,7 +46,7 @@ nextflow_process {
                 with(get(0)) {
 
                     // Check the tuple contains the expected values.
-                    assert get(0) ==~ "sample.*"
+                    assert get(0) ==~ "ERR.*"
                     assert get(1) ==~ ".*kraken.mpa"
                 }
             }
