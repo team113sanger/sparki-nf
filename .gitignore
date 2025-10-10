@@ -7,5 +7,5 @@ tests/testdata/**/*.bam*
 tests/testdata/**/*.fa*
 tests/testdata/kraken2_reference/*
 .nf-test/*
-.nf-test.log*
+.nf-test*
 nxf*
