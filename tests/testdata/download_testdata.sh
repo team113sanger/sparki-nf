@@ -60,18 +60,3 @@ wget -P ${OUTDIR}/ -nc https://genome-idx.s3.amazonaws.com/kraken/k2_pluspfp_16g
 mkdir -p ${OUTDIR}/kraken2_reference/
 tar -xvzf ${OUTDIR}/k2_pluspfp_16gb_20230314.tar.gz -C ${OUTDIR}/kraken2_reference/
 rm -f ${OUTDIR}/k2_pluspfp_16gb_20230314.tar.gz
-
-##################################
-# Creating a mock metadata table #
-##################################
-
-echo "sample,mock_column1,mock_column2" > ${OUTDIR}/metadata_table.csv
-echo "ERR12549242,mock_value1,mock_value2" >> ${OUTDIR}/metadata_table.csv
-echo "ERR12549245,mock_value3,mock_value4" >> ${OUTDIR}/metadata_table.csv
-echo "ERR12549246,mock_value5,mock_value6" >> ${OUTDIR}/metadata_table.csv
-
-##########################################
-# Creating a mock samples-to-remove file #
-##########################################
-
-echo "ERR12549245" > ${OUTDIR}/samples_to_remove.txt
