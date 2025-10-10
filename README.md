@@ -111,6 +111,77 @@ git hf release finish 1.0.0 # Or whatever the name of the release.
 
 To run tests for `sparki-nf`, ensure you have [nf-test](https://www.nf-test.com) installed in your machine.
 
+#### Downloading test data
+
+To run the tests included in this repository, please download the test data following the instructions below. We are using data from the feline basal cell carcinoma study `ERP143204` which is publicly available from the [European Nucleotide Archive (ENA)](https://www.ebi.ac.uk/ena/browser/home).
+
+1. Ensure your current working directory is the `sparki-nf` repository directory. If you run `pwd`, you should see something like:
+
+```bash
+$ pwd
+path/to/sparki-nf
+```
+
+2. Run the bash script `download_testdata.sh`:
+
+```bash
+$ bash tests/testdata/download_testdata.sh
+```
+
+3. Check all the files have been downloaded successfully and as expected. After you run `download_testdata.sh`, you should have a directory structure like this:
+
+```bash
+./tests/testdata/
+├── bam_files
+│   ├── 46643_1#11.bam
+│   ├── 46643_1#14.bam
+│   └── 46643_1#5.bam
+├── cram_files
+│   ├── 46643_1#11.cram
+│   ├── 46643_1#11.cram.crai
+│   ├── 46643_1#14.cram
+│   ├── 46643_1#14.cram.crai
+│   ├── 46643_1#5.cram
+│   └── 46643_1#5.cram.crai
+├── download_testdata.sh
+├── fastq_files
+│   ├── ERR12549242_1.fastq.gz
+│   ├── ERR12549242_2.fastq.gz
+│   ├── ERR12549245_1.fastq.gz
+│   ├── ERR12549245_2.fastq.gz
+│   ├── ERR12549246_1.fastq.gz
+│   └── ERR12549246_2.fastq.gz
+├── felis_catus_reference_genome
+│   ├── Felis_catus.Felis_catus_9.0.dna.toplevel.fa
+│   └── Felis_catus.Felis_catus_9.0.dna.toplevel.fa.fai
+├── kraken2_reference
+│   ├── database100mers.kmer_distrib
+│   ├── database150mers.kmer_distrib
+│   ├── database200mers.kmer_distrib
+│   ├── database250mers.kmer_distrib
+│   ├── database300mers.kmer_distrib
+│   ├── database50mers.kmer_distrib
+│   ├── database75mers.kmer_distrib
+│   ├── hash.k2d
+│   ├── inspect.txt
+│   ├── ktaxonomy.tsv
+│   ├── opts.k2d
+│   ├── seqid2taxid.map
+│   └── taxo.k2d
+├── metadata_table.csv
+├── mpa_reports
+│   ├── ERR12549242.kraken.mpa
+│   ├── ERR12549245.kraken.mpa
+│   └── ERR12549246.kraken.mpa
+├── samples_to_remove.txt
+└── standard_reports
+    ├── ERR12549242.kraken
+    ├── ERR12549245.kraken
+    └── ERR12549246.kraken
+
+7 directories, 39 files
+```
+
 #### Running process-level tests
 
 ```bash
