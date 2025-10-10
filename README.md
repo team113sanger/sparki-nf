@@ -53,7 +53,7 @@ Briefly, the processes in `sparki-nf` are run using Docker images that are pulle
 | --- | --- | --- |
 | [samtools](https://academic.oup.com/bioinformatics/article/25/16/2078/204688) | quay.io/biocontainers/samtools:1.22--h96c455f_0 | v1.22 |
 | [Kraken2](https://github.com/DerrickWood/kraken2) | quay.io/biocontainers/kraken2:2.1.5--pl5321h077b44d_0 | v2.1.5 |
-| [KrakenTools](https://github.com/jenniferlu717/KrakenTools) | quay.io/biocontainers/krakentools:1.2--pyh7e72e81_1 | v1.2 |
+| [KrakenTools](https://github.com/jenniferlu717/KrakenTools) | quay.io/biocontainers/krakentools:1.2.1--pyh7e72e81_0 | v1.2.1 |
 | [SPARKI](https://github.com/team113sanger/sparki) | quay.io/team113sanger/sparki:1.0.0 | v1.0.0 |
 
 Please note that it is not necessary to pull any of these images manually, as each process in `sparki-nf` will do that by default.
@@ -122,10 +122,10 @@ $ pwd
 path/to/sparki-nf
 ```
 
-2. Run the bash script `download_testdata.sh`:
+2. Run the bash script `download_testdata.sh` as shown below (ensure you have pulled the `samtools` image `quay.io/biocontainers/samtools:1.22--h96c455f_0` before running the script).
 
 ```bash
-$ bash tests/testdata/download_testdata.sh
+bash tests/testdata/download_testdata.sh
 ```
 
 3. Check all the files have been downloaded successfully and as expected. After you run `download_testdata.sh`, you should have a directory structure like this:
