@@ -22,11 +22,11 @@ nextflow_pipeline {
 
             // Check the pipeline creates the correct number of tasks.
             //
-            // For 3 input CRAM files, the total number of tasks that should have
+            // For 3 input BAM files, the total number of tasks that should have
             // been created by the time the pipeline finishes running is 10.
             //
             // Breakdown:
-            // - 3 CRAM to FASTQ tasks;
+            // - 3 BAM to FASTQ tasks;
             // - 3 Kraken2 tasks;
             // - 3 KrakenTools tasks;
             // - 1 SPARKI task.
