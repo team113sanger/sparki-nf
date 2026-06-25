@@ -73,3 +73,7 @@ workflow {
         params.flags
     )
 }
+
+workflow.onComplete {
+    Utils.reportRun(workflow, params)
+}
