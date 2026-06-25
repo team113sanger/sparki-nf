@@ -126,7 +126,6 @@ process RUN_SPARKI {
         val(ORGANISM)
         path(REF_DIR)
         val(DOMAIN)
-        path(OUTDIR)
         // Optional inputs for SPARKI.
         val(METADATA)
         val(SAMPLE_COL)
@@ -171,7 +170,7 @@ process RUN_SPARKI {
         echo -e "\tMPA-style reports directory: ${MPA_REPORTS_DIR}"
         echo -e "\tOrganism: ${ORGANISM}"
         echo -e "\tKraken2 reference path: ${REF_DIR}"
-        echo -e "\tOutput directory for SPARKI results: ${OUTDIR}"
+
         echo -e "\tDomain(s): ${DOMAIN}"
         echo -e "\tMetadata: ${METADATA}"
         echo -e "\tMetadata sample column: ${SAMPLE_COL}"

@@ -10,7 +10,6 @@ workflow REFINE_KRAKEN2_RESULTS {
         organism
         reference_dir
         domain
-        sparki_dir
         metadata
         metadata_sample_column
         metadata_columns
@@ -29,7 +28,6 @@ workflow REFINE_KRAKEN2_RESULTS {
             organism,                // Organism being analysed, at the species level (e.g. Homo sapiens).
             reference_dir,           // Kraken2's reference database.
             domain,                  // Domain of interest (e.g. Viruses).
-            sparki_dir,              // Directory for SPARKI outputs.
             metadata,                // Metadata table.
             metadata_sample_column,  // Sample column in metadata table.
             metadata_columns,        // Comma-delimited column names from the metadata table.
