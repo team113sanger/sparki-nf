@@ -114,6 +114,7 @@ process RUN_KRAKENTOOLS {
 // This process collates the Kraken2/KrakenTools results of a set
 // of samples and refines the output to help with the interpretation.
 process RUN_SPARKI {
+    publishDir "${params.outdir}/sparki"
     container "quay.io/team113sanger/sparki:1.0.0"
    
     input:
@@ -135,6 +136,9 @@ process RUN_SPARKI {
         val(SAMPLES_TO_REMOVE)
         val(FLAGS)
 
+    output:
+        path("sparki/*"), emit: sparki_results
+
     script:
         def METADATA_ARG = METADATA ? "--metadata ${METADATA}" : ""
         def SAMPLE_COL_ARG = SAMPLE_COL ? "--sample-col ${SAMPLE_COL}" : ""
@@ -143,12 +147,13 @@ process RUN_SPARKI {
         def SAMPLES_TO_REMOVE_ARG = SAMPLES_TO_REMOVE ? "--samples-to-remove ${SAMPLES_TO_REMOVE}" : ""
 
         """
+        mkdir -p sparki
         Rscript -e "SPARKI::cli()" \
             --std-reports ${STD_REPORTS_DIR} \
             --mpa-reports ${MPA_REPORTS_DIR} \
             --organism ${ORGANISM} \
             --reference ${REF_DIR}/inspect.txt \
-            --outdir ${OUTDIR} \
+            --outdir sparki \
             --domain ${DOMAIN} \
             --verbosity ${VERBOSITY} \
             ${METADATA_ARG} \
