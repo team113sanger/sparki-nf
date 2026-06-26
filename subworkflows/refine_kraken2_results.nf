@@ -5,8 +5,6 @@ workflow REFINE_KRAKEN2_RESULTS {
     take:
         all_std_reports
         all_mpa_reports
-        std_reports_dir
-        mpa_reports_dir
         organism
         reference_dir
         domain
@@ -21,10 +19,8 @@ workflow REFINE_KRAKEN2_RESULTS {
     main:
 
         RUN_SPARKI(
-            all_std_reports,         // Standard reports.
-            all_mpa_reports,         // MPA-style reports.
-            std_reports_dir,         // Directory for standard reports.
-            mpa_reports_dir,         // Directory for MPA-style reports.
+            all_std_reports,         // Standard reports (staged into std_reports/).
+            all_mpa_reports,         // MPA-style reports (staged into mpa_reports/).
             organism,                // Organism being analysed, at the species level (e.g. Homo sapiens).
             reference_dir,           // Kraken2's reference database.
             domain,                  // Domain of interest (e.g. Viruses).

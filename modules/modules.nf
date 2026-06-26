@@ -118,11 +118,10 @@ process RUN_SPARKI {
     container "quay.io/team113sanger/sparki:1.0.0"
    
     input:
-        val(ALL_STD_REPORTS)
-        val(ALL_MPA_REPORTS)
-        // Mandatory inputs for SPARKI.
-        path(STD_REPORTS_DIR)
-        path(MPA_REPORTS_DIR)
+        // Mandatory inputs for SPARKI. Reports are staged into local
+        // directories within the work dir.
+        path(STD_REPORTS, stageAs: "std_reports/*")
+        path(MPA_REPORTS, stageAs: "mpa_reports/*")
         val(ORGANISM)
         path(REF_DIR)
         val(DOMAIN)
@@ -148,8 +147,8 @@ process RUN_SPARKI {
         """
         mkdir -p sparki
         Rscript -e "SPARKI::cli()" \
-            --std-reports ${STD_REPORTS_DIR} \
-            --mpa-reports ${MPA_REPORTS_DIR} \
+            --std-reports std_reports \
+            --mpa-reports mpa_reports \
             --organism ${ORGANISM} \
             --reference ${REF_DIR}/inspect.txt \
             --outdir sparki \
@@ -166,8 +165,8 @@ process RUN_SPARKI {
     stub:
         """
         echo "USER-DEFINED INPUTS:"
-        echo -e "\tStandard reports directory: ${STD_REPORTS_DIR}"
-        echo -e "\tMPA-style reports directory: ${MPA_REPORTS_DIR}"
+        echo -e "\tStandard reports: ${STD_REPORTS}"
+        echo -e "\tMPA-style reports: ${MPA_REPORTS}"
         echo -e "\tOrganism: ${ORGANISM}"
         echo -e "\tKraken2 reference path: ${REF_DIR}"
 
@@ -181,6 +180,7 @@ process RUN_SPARKI {
         echo -e "\tFlags: ${FLAGS}"
 
         echo "SPARKI OUTPUT:"
-        touch "${OUTDIR}/sparki.csv"
+        mkdir -p sparki
+        touch sparki/sparki.csv
         """
 }

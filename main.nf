@@ -15,19 +15,6 @@ workflow {
         .map { file -> tuple(file.simpleName, file) }
     reference_dir = file(params.reference_database, checkIfExists: true)   // Kraken2's reference database.
 
-    /****************************/
-    /**** Create directories ****/
-    /****************************/
-
-    std_reports_dir = file("${params.outdir}/std_reports") // Standard reports directory.
-    std_reports_dir.mkdirs()
-
-    mpa_reports_dir = file("${params.outdir}/mpa_reports") // MPA-style reports directory.
-    mpa_reports_dir.mkdirs()
-
-    sparki_dir = file("${params.outdir}/sparki")           // SPARKI directory.
-    sparki_dir.mkdirs()
-
     /************************/
     /**** Start analysis ****/
     /************************/
@@ -58,12 +45,9 @@ workflow {
     REFINE_KRAKEN2_RESULTS(
         all_std_reports,                // Standard reports.
         all_mpa_reports,                // MPA-style reports.
-        std_reports_dir,                // Directory for standard reports.
-        mpa_reports_dir,                // Directory for MPA-style reports.
         params.organism,                // Organism being analysed, at the species level (e.g. Homo sapiens).
         reference_dir,                  // Kraken2's reference database.
         params.domain,                  // Domain of interest (e.g. Viruses).
-        sparki_dir,                     // Directory for SPARKI outputs.
         params.metadata,                // Metadata table.
         params.metadata_sample_column,  // Sample column in metadata table.
         params.metadata_columns,        // Comma-delimited column names from the metadata table.
