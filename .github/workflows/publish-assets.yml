@@ -1,0 +1,121 @@
+# Publishes the contents of assets/ as a release bundle that `dermanager projectify`
+# downloads over the GitHub release CDN (no API call, no auth, no rate limit).
+#
+# This repository is GitHub-primary. It has never been GitLab-primary and has no push
+# mirror, so this workflow is the only active CI.
+#
+# Consumer URLs (public, unauthenticated):
+#   https://github.com/<owner>/<repo>/releases/download/<ref>/projectify_asset_bundle.tar.gz
+#   https://github.com/<owner>/<repo>/releases/download/<ref>/projectify_asset_bundle.tar.gz.sha256
+# where <ref> is a release tag (X.Y.Z), or the rolling channels main-latest / develop-latest.
+#
+# A rolling tag is an ADDRESS FOR A BUNDLE, never a git revision. It is created exactly
+# once and never moved: only the attached assets are replaced. A tag that CI force-moves
+# breaks `git hf release start` ("would clobber existing tag") and `release finish`
+# ("already exists") for every contributor holding an older copy - and finish aborts
+# after pushing main, develop and the release tag, stranding release/<version> on the
+# remote. Provenance for a rolling bundle therefore lives in the release NOTES, not in
+# where the tag points: `git checkout main-latest` and the release page's "Source code"
+# links resolve to the commit the tag was created at, not the head the bundle was built
+# from.
+name: Publish projectify asset bundle
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/wire_in_tracking
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+  # Backfill a bundle for a ref that predates this workflow, or re-publish one by hand.
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Tag (X.Y.Z) or branch to build the bundle from'
+        required: true
+        default: main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-assets-${{ inputs.ref || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve source ref and release tag
+        id: resolve
+        env:
+          INPUT_REF: ${{ inputs.ref }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            source_ref="$INPUT_REF"
+          else
+            source_ref="$REF_NAME"
+          fi
+          if printf '%s' "$source_ref" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            # Versioned release: the bundle is immutable and addressed by the tag itself.
+            release_tag="$source_ref"
+            prerelease=false
+          else
+            # Rolling channel: a fixed tag, created once, whose assets are replaced.
+            release_tag="$(printf '%s' "$source_ref" | tr '/' '-')-latest"
+            prerelease=true
+          fi
+          echo "source_ref=$source_ref" >> "$GITHUB_OUTPUT"
+          echo "release_tag=$release_tag" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
+          echo "Building bundle from '$source_ref' and publishing it as '$release_tag' (prerelease=$prerelease)."
+
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.resolve.outputs.source_ref }}
+
+      - name: Build the asset bundle
+        run: |
+          set -euo pipefail
+          test -d assets || { echo "::error::No assets/ directory at ${{ steps.resolve.outputs.source_ref }}"; exit 1; }
+          tar -czf projectify_asset_bundle.tar.gz -C assets .
+          sha256sum projectify_asset_bundle.tar.gz > projectify_asset_bundle.tar.gz.sha256
+          echo "Bundle contents:"
+          tar -tzf projectify_asset_bundle.tar.gz
+          cat projectify_asset_bundle.tar.gz.sha256
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.resolve.outputs.release_tag }}
+          SOURCE_REF: ${{ steps.resolve.outputs.source_ref }}
+          PRERELEASE: ${{ steps.resolve.outputs.prerelease }}
+        run: |
+          set -euo pipefail
+          notes="Assets from \`$SOURCE_REF\` (\`$GITHUB_SHA\`), published automatically for \`dermanager projectify\`."
+          if [ "$PRERELEASE" = "true" ]; then
+            notes="Rolling bundle tracking the head of \`$SOURCE_REF\`. The tag itself is fixed at the commit it was created on and is never moved; this bundle was rebuilt at $(date -u +'%Y-%m-%dT%H:%M:%SZ'). $notes"
+          fi
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            # The tag already exists: replace only the attached assets, and refresh the
+            # notes so the provenance of the current bundle is recorded.
+            gh release upload "$RELEASE_TAG" \
+              projectify_asset_bundle.tar.gz projectify_asset_bundle.tar.gz.sha256 --clobber
+            gh release edit "$RELEASE_TAG" --notes "$notes"
+          elif [ "$PRERELEASE" = "true" ]; then
+            # The only moment a rolling tag is ever placed.
+            gh release create "$RELEASE_TAG" --target "$GITHUB_SHA" --prerelease \
+              --title "$RELEASE_TAG" --notes "$notes" \
+              projectify_asset_bundle.tar.gz projectify_asset_bundle.tar.gz.sha256
+          else
+            gh release create "$RELEASE_TAG" --title "$RELEASE_TAG" --notes "$notes" \
+              projectify_asset_bundle.tar.gz projectify_asset_bundle.tar.gz.sha256
+          fi
+          # GitHub demotes a release to a draft if its tag ever disappears, which 404s the
+          # download URL. Repair that unconditionally.
+          gh release edit "$RELEASE_TAG" --draft=false --prerelease="$PRERELEASE"
+          echo "https://github.com/$GITHUB_REPOSITORY/releases/download/$RELEASE_TAG/projectify_asset_bundle.tar.gz"

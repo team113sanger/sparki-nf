@@ -1,5 +1,5 @@
 process BAM_TO_FASTQ {
-    publishDir "${params.outdir}/fastq"
+    publishDir "${params.outdir}/fastq", mode: "${params.publish_dir_mode}"
     container "quay.io/biocontainers/samtools:1.22--h96c455f_0"
 
     input:
@@ -52,7 +52,7 @@ process BAM_TO_FASTQ {
 // Run Kraken2 on a sample.
 // This process will generate a sample-level standard report.
 process RUN_KRAKEN2 {
-    publishDir "${params.outdir}/std_reports"
+    publishDir "${params.outdir}/std_reports", mode: "${params.publish_dir_mode}"
     container "quay.io/biocontainers/kraken2:2.1.5--pl5321h077b44d_0"
 
     input: 
@@ -87,7 +87,7 @@ process RUN_KRAKEN2 {
 // Run KrakenTools' kreport2mpa.py on a sample.
 // This process will generate a sample-level MPA-style report.
 process RUN_KRAKENTOOLS {
-    publishDir "${params.outdir}/mpa_reports"
+    publishDir "${params.outdir}/mpa_reports", mode: "${params.publish_dir_mode}"
     container "gitlab-registry.internal.sanger.ac.uk/dermatlas/krakentools:1.2.4"
 
     input: 
@@ -114,14 +114,18 @@ process RUN_KRAKENTOOLS {
 // This process collates the Kraken2/KrakenTools results of a set
 // of samples and refines the output to help with the interpretation.
 process RUN_SPARKI {
-    publishDir "${params.outdir}/sparki"
+    // One task per subcohort, each publishing under its own name so two
+    // subcohorts of the same run cannot overwrite each other's tables.
+    publishDir path: { "${params.outdir}/sparki/${meta.cohort_id}" },
+               mode: "${params.publish_dir_mode}",
+               overwrite: true
     container "quay.io/team113sanger/sparki:1.0.0"
    
     input:
-        // Mandatory inputs for SPARKI. Reports are staged into local
-        // directories within the work dir.
-        path(STD_REPORTS, stageAs: "std_reports/*")
-        path(MPA_REPORTS, stageAs: "mpa_reports/*")
+        // Mandatory inputs for SPARKI. Only the reports of this subcohort's
+        // samples are staged into the local directories within the work dir,
+        // which is what restricts the analysis to the subcohort.
+        tuple val(meta), path(STD_REPORTS, stageAs: "std_reports/*"), path(MPA_REPORTS, stageAs: "mpa_reports/*")
         val(ORGANISM)
         path(REF_DIR)
         val(DOMAIN)
@@ -135,13 +139,17 @@ process RUN_SPARKI {
         val(FLAGS)
 
     output:
-        path("sparki/*"), emit: sparki_results
+        tuple val(meta), path("sparki/*"), emit: sparki_results
 
     script:
+        // The subcohort name prefixes this subcohort's outputs. An explicit
+        // params.prefix still wins, and is qualified so its files stay
+        // distinguishable between subcohorts.
+        def COHORT_PREFIX = PREFIX ? "${PREFIX}_${meta.cohort_id}" : "${meta.cohort_id}"
         def METADATA_ARG = METADATA ? "--metadata ${METADATA}" : ""
         def SAMPLE_COL_ARG = SAMPLE_COL ? "--sample-col ${SAMPLE_COL}" : ""
         def COLUMNS_ARG = COLUMNS ? "--columns ${COLUMNS}" : ""
-        def PREFIX_ARG = PREFIX ? "--prefix ${PREFIX}" : ""
+        def PREFIX_ARG = "--prefix ${COHORT_PREFIX}"
         def SAMPLES_TO_REMOVE_ARG = SAMPLES_TO_REMOVE ? "--samples-to-remove ${SAMPLES_TO_REMOVE}" : ""
 
         """
@@ -165,6 +173,7 @@ process RUN_SPARKI {
     stub:
         """
         echo "USER-DEFINED INPUTS:"
+        echo -e "\tSubcohort: ${meta.cohort_id}"
         echo -e "\tStandard reports: ${STD_REPORTS}"
         echo -e "\tMPA-style reports: ${MPA_REPORTS}"
         echo -e "\tOrganism: ${ORGANISM}"

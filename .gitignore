@@ -14,3 +14,4 @@ tests/testdata/samples_to_remove.txt
 .nf-test/*
 .nf-test.log*
 nxf*
+REPORTING_INTEGRATION_GUIDE (1).md

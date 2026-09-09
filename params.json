@@ -1,10 +1,9 @@
 {
-    "outdir": "/home/ubuntu/git_clones/sparki-nf/run_manually/",
-    "bam_files": "/home/ubuntu/git_clones/sparki-nf/tests/testdata/bam_files/**.bam",
-    "reference_database": "/home/ubuntu/git_clones/sparki-nf/tests/testdata/kraken2_reference",
+    "outdir": "results",
+    "bam_files": "tests/testdata/bam_files/**.bam",
+    "reference_database": "tests/testdata/kraken2_reference",
     "confidence": "0.1",
     "organism": "'Homo sapiens'",
     "domain": "Viruses",
-    "verbosity": "debug",
-    "copy_mode": "symlink"
+    "verbosity": "debug"
 }
