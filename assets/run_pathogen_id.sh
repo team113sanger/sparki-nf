@@ -627,7 +627,7 @@ trap 'exit 129' HUP
 ############################
 #### RESERVED VARIABLES ####
 ############################
-_DEFAULT_PIPELINE_SLUG="pathogen_id_pipe"
+_DEFAULT_PIPELINE_SLUG="pathogen_pipe"
 _DEFAULT_SOURCE_ME="./source_me.sh"
 _LAUNCHER_LABEL="Sparki pathogen-identification launcher"
 
