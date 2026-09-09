@@ -774,7 +774,7 @@ fi
 # Nextflow config for this run; git-clone runs point this at their own copy.
 CONFIG="${COMMANDS_DIR}/${PIPELINE_SLUG}/pathogen_id.config"
 # Pipeline version to run: a tag or commit hash. Maintained by .update-version.sh.
-REVISION="1.0.1"
+REVISION="feature/wire_in_tracking"
 # Optional. If set, RUN_ID becomes <label>_<timestamp> instead of
 # <study>_<project>_<cohort>_<timestamp>.
 LABEL=""
