@@ -95,9 +95,9 @@ the start of each changelog entry to indicate the impact of the change:
 
   `bam_files` is now resolved with `file()` before the BAM channel is built, so zero
   matches is a decision the workflow makes rather than a `checkIfExists` error thrown
-  inside the channel factory. `pathogen_id.config` sets it to `false` explicitly: for a
-  cohort with data, an empty input means something upstream is wrong and should fail
-  rather than record a green run that analysed nothing.
+  inside the channel factory. `pathogen_id.config` sets it to `true`: dermanager exports
+  that cohort's subcohort sample lists before the data they name exists, so its scheduled
+  runs should record `completed` rather than `failed` while a subcohort is still empty.
 
 ### Changed
 - **INTEGRATION** - **Breaking:** run reporting is opt-in via the toggles above;

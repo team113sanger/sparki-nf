@@ -221,6 +221,9 @@ Two consequences are worth knowing before turning it on:
 Kraken2 still classifies every matched BAM in the subcohort cases - only the SPARKI step
 is skipped. A run that stops at the first case does no work at all.
 
+The shipped `pathogen_id.config` sets `allow_empty_input = true`, because dermanager
+exports that cohort's subcohort sample lists before the data they name exists.
+
 ### Run artifacts
 
 The launcher owns run identity: one exported `RUN_ID` names every artifact of a run, all of
