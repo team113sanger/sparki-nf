@@ -637,8 +637,7 @@ _LAUNCHER_LABEL="Sparki pathogen-identification launcher"
 #  - slack-essential:    required only when DERMATLAS_SLACK_NOTIFICATIONS=true.
 # The two sample lists are contract because the asset config interpolates them:
 # Kraken2 runs over every BAM, and each subcohort's SPARKI run is restricted to
-# the samples its list names. `metadata` and `samples_to_remove` remain optional
-# workflow inputs, not contract.
+# the samples in its list names.
 _PIPELINE_ENV_VARS=(PROJECT_DIR COMMANDS_DIR ANALYSIS_DIR BAMS_DIR STUDY PROJECT \
                 RNA_SAMPLE_LIST_ONE_PER_PATIENT RNA_SAMPLE_LIST_FINAL_DECISION)
 _WEBSITE_ENV_VARS=(COHORT_SLUG SAMPLE_LIST_VERSION_FILE SELF_DESCRIBING_API)

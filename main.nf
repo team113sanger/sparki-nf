@@ -24,17 +24,27 @@ workflow {
     /**** Resolve the subcohorts ***/
     /*******************************/
 
-    // Every BAM is classified by Kraken2. Only the SPARKI refinement step is
-    // restricted to a subcohort, so one Kraken2 run per sample serves every
     // subcohort. Each subcohort is a name plus a sample list; the lists are
     // generated and versioned by dermanager, so the asset config names them by
     // their exported variables rather than rebuilding their paths.
-    //
-    // With no subcohorts configured the pipeline behaves as it always has: a
-    // single SPARKI run over every sample, published under "all_samples". That
-    // keeps the portable `-profile container` usage working unchanged.
+
+    def use_subcohorts = Utils.parseCLIBool(params.use_subcohorts, false, 'use_subcohorts')
+    def allow_empty    = Utils.parseCLIBool(params.allow_empty_input, false, 'allow_empty_input')
+
+    if (!use_subcohorts && params.subcohorts && !params.subcohorts.isEmpty()) {
+        log.info(
+            "use_subcohorts is false: running a single SPARKI analysis over every sample " +
+            "and ignoring the ${params.subcohorts.size()} configured subcohort(s)."
+        )
+    }
+
     def subcohort_defs = null
-    if (params.subcohorts && !params.subcohorts.isEmpty()) {
+    if (use_subcohorts) {
+        if (!params.subcohorts || params.subcohorts.isEmpty()) {
+            error "ERROR: use_subcohorts is true but no subcohorts are configured. " +
+                  "Either set subcohorts, or set use_subcohorts = false to run a single " +
+                  "SPARKI analysis over every sample."
+        }
         subcohort_defs = params.subcohorts.collect { subcohort_name, config ->
             if (!config?.sample_list) {
                 error "ERROR: subcohort '${subcohort_name}' has no sample_list. " +
@@ -47,9 +57,23 @@ workflow {
                 .collect { it.trim().split('\t')[0].trim() }
                 .findAll { it } as Set
             if (!ids) {
-                error "ERROR: subcohort '${subcohort_name}': sample list ${list_file} contains no sample ids."
+                if (!allow_empty) {
+                    error "ERROR: subcohort '${subcohort_name}': sample list ${list_file} contains no sample ids."
+                }
+                log.warn("Subcohort '${subcohort_name}': sample list ${list_file} contains no sample ids; skipping it.")
+                return null
             }
             [name: subcohort_name, ids: ids, path: list_file]
+        }.findAll { it != null }
+
+        // Every subcohort dropped out above, so there is nothing left to select
+        // samples for - classifying them would publish no SPARKI output at all.
+        if (!subcohort_defs) {
+            log.warn(
+                "Every configured subcohort has an empty sample list; nothing to analyse. " +
+                "Completing successfully (allow_empty_input is true)."
+            )
+            return
         }
         log.info("Processing subcohorts: ${subcohort_defs.collect { it.name }.join(', ')}")
     }
@@ -58,7 +82,26 @@ workflow {
     /**** Load input data ****/
     /*************************/
 
-    bams = Channel.fromPath(params.bam_files, checkIfExists: true)         // BAM files.
+    // Resolved here rather than by Channel.fromPath(checkIfExists: true) so that
+    // zero matches is something the workflow decides about: file() with a glob
+    // returns a (possibly empty) list, where the channel factory would throw.
+    def bam_paths = file(params.bam_files)                                 // BAM files.
+    if (!(bam_paths instanceof List)) {
+        bam_paths = bam_paths ? [bam_paths] : []
+    }
+    if (!bam_paths) {
+        if (!allow_empty) {
+            error "ERROR: no BAM files match ${params.bam_files}. Check BAMS_DIR, or set " +
+                  "allow_empty_input = true for a cohort that is expected to have no data yet."
+        }
+        log.warn(
+            "No BAM files match ${params.bam_files}; nothing to analyse. " +
+            "Completing successfully (allow_empty_input is true)."
+        )
+        return
+    }
+
+    bams = Channel.fromList(bam_paths)
         .map { file -> tuple(file.simpleName, file) }
     reference_dir = file(params.reference_database, checkIfExists: true)   // Kraken2's reference database.
 
@@ -104,25 +147,39 @@ workflow {
         sparki_inputs = Channel.fromList(subcohort_defs)
             .combine(all_std_reports)
             .combine(all_mpa_reports)
-            .map { subcohort, std_pairs, mpa_pairs ->
+            .flatMap { subcohort, std_pairs, mpa_pairs ->
                 def std = std_pairs.findAll { subcohort.ids.contains(it[0]) }.sort { it[0] }.collect { it[1] }
                 def mpa = mpa_pairs.findAll { subcohort.ids.contains(it[0]) }.sort { it[0] }.collect { it[1] }
                 if (!std) {
-                    error "ERROR: subcohort '${subcohort.name}' matched none of the classified samples. " +
-                          "Check that the ids in ${subcohort.path} match the BAM filenames."
+                    if (!allow_empty) {
+                        error "ERROR: subcohort '${subcohort.name}' matched none of the classified samples. " +
+                              "Check that the ids in ${subcohort.path} match the BAM filenames."
+                    }
+                    log.warn(
+                        "Subcohort '${subcohort.name}' matched none of the classified samples; " +
+                        "no SPARKI run for it. Check that the ids in ${subcohort.path} match the BAM filenames."
+                    )
+                    return []
                 }
-                tuple(["cohort_id": subcohort.name], std, mpa)
+                return [tuple(["cohort_id": subcohort.name], std, mpa)]
             }
     }
     else {
         sparki_inputs = all_std_reports
             .combine(all_mpa_reports)
-            .map { std_pairs, mpa_pairs ->
-                tuple(
+            .flatMap { std_pairs, mpa_pairs ->
+                if (!std_pairs) {
+                    if (!allow_empty) {
+                        error "ERROR: no samples were classified, so there is nothing for SPARKI to refine."
+                    }
+                    log.warn("No samples were classified; skipping the SPARKI analysis.")
+                    return []
+                }
+                return [tuple(
                     ["cohort_id": "all_samples"],
                     std_pairs.sort { it[0] }.collect { it[1] },
                     mpa_pairs.sort { it[0] }.collect { it[1] }
-                )
+                )]
             }
     }
 

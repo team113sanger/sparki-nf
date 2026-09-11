@@ -42,7 +42,9 @@ The inputs for `sparki-nf` must be defined in a `json` file (e.g. `params.json`)
 - `verbosity`: verbosity level (one of `trace`/`t`, `debug`/`d`, `info`/`i`, `success`/`s`, `warn`/`w`, `error`/`e`, `fatal`/`f`, or `off`/`o`).
 - `samples_to_remove`: a text file containing a list of samples that should not be included in the final SPARKI outputs.
 - `flags`: these are additional flags that can be provided to SPARKI (`--include-eukaryotes` and `--include-sample-names`).
-- `subcohorts`: a map of subcohort name to `[sample_list: <path>]`. Kraken2 still runs over every sample; each subcohort gets its own SPARKI run restricted to the samples its list names. Left unset, a single SPARKI run covers every sample. See [Subcohorts](#subcohorts).
+- `use_subcohorts`: `true`/`false` (default `false`). `false` runs SPARKI once over every classified sample; `true` splits the SPARKI step into one run per entry in `subcohorts`. See [Subcohorts](#subcohorts).
+- `subcohorts`: a map of subcohort name to `[sample_list: <path>]`, read only when `use_subcohorts` is `true`. Kraken2 still runs over every sample; each subcohort gets its own SPARKI run restricted to the samples its list names. See [Subcohorts](#subcohorts).
+- `allow_empty_input`: `true`/`false` (default `false`). Whether a run whose inputs resolve to zero samples completes successfully instead of erroring. See [Empty cohorts](#empty-cohorts).
 
 ## Software requirements
 
@@ -121,10 +123,11 @@ PROJECT_DIR COMMANDS_DIR ANALYSIS_DIR BAMS_DIR STUDY PROJECT
 RNA_SAMPLE_LIST_ONE_PER_PATIENT RNA_SAMPLE_LIST_FINAL_DECISION
 ```
 
-The two sample lists feed `subcohorts` in the asset config. Kraken2 classifies every BAM
-matched by `bam_files` regardless; the lists only decide which samples each SPARKI run
-covers. A git-clone user with no dermanager lists can leave `subcohorts` empty, which
-gives a single SPARKI run over every sample under `sparki/all_samples`.
+The two sample lists feed `subcohorts` in the asset config, which the config switches on
+with `use_subcohorts = true`. Kraken2 classifies every BAM matched by `bam_files`
+regardless; the lists only decide which samples each SPARKI run covers. A git-clone user
+with no dermanager lists can leave `use_subcohorts` at its `false` default, which gives a
+single SPARKI run over every sample under `sparki/all_samples`.
 
 No cohort slug, sample-list version, API endpoint or Slack webhook is required - or even
 checked. There are two routes to providing the environment without a dermanager
@@ -148,22 +151,30 @@ they are released.
 
 ### Subcohorts
 
-Every BAM matched by `bam_files` is converted to FASTQ and classified by Kraken2 and
-KrakenTools exactly once. Only the SPARKI refinement is per-subcohort: each entry in
-`params.subcohorts` names a sample list, and SPARKI runs over just the reports of the
-samples that list names.
+Subcohort processing is **opt-in**, via `params.use_subcohorts`. Every BAM matched by
+`bam_files` is converted to FASTQ and classified by Kraken2 and KrakenTools exactly once
+either way. Only the SPARKI refinement is per-subcohort: with `use_subcohorts = true`,
+each entry in `params.subcohorts` names a sample list and SPARKI runs over just the
+reports of the samples that list names.
 
 ```groovy
+use_subcohorts = true
 subcohorts = [
     "one_per_patient": [sample_list: "${RNA_SAMPLE_LIST_ONE_PER_PATIENT}"],
     "final_decision":  [sample_list: "${RNA_SAMPLE_LIST_FINAL_DECISION}"],
 ]
 ```
 
-| Subcohorts | SPARKI runs | Published under |
+| `use_subcohorts` | SPARKI runs | Published under |
 | --- | --- | --- |
-| configured | one per entry | `outdir/sparki/<subcohort>/` |
-| empty (the default) | one, over every sample | `outdir/sparki/all_samples/` |
+| `false` (the default) | one, over every sample | `outdir/sparki/all_samples/` |
+| `true` | one per `subcohorts` entry | `outdir/sparki/<subcohort>/` |
+
+The toggle is independent of the map, so a run can be flipped back to a single whole-cohort
+analysis with `--use_subcohorts false` without editing `subcohorts` out of the config; the
+configured subcohorts are then ignored and named in a log line. `use_subcohorts = true`
+with no `subcohorts` configured is an error rather than a silent fall back to
+`all_samples`.
 
 The subcohort name prefixes that subcohort's output files; an explicit `params.prefix`
 still wins and is qualified with the subcohort name so the two stay distinguishable.
@@ -178,6 +189,37 @@ results:
   the subcohort and its list;
 - samples that are classified but appear in **no** subcohort list are logged as a warning
   listing them, since they are dropped from every SPARKI output.
+
+Both checks only apply when `use_subcohorts` is `true`. The first is relaxed by
+`allow_empty_input`; see [Empty cohorts](#empty-cohorts).
+
+### Empty cohorts
+
+By default a run that resolves to zero samples is an **error**, because an empty cohort is
+almost always a mis-set `BAMS_DIR` or a sample-list path that moved, and a silent success
+there would record a green run that analysed nothing.
+
+`allow_empty_input = true` (or `--allow_empty_input true`) inverts that for a cohort that
+is wired up but has no data yet: each of the three empty-input cases logs a warning and
+the run completes successfully, so a scheduled run records `completed` in the analysis log
+rather than `failed`.
+
+| Case | Default | `allow_empty_input = true` |
+| --- | --- | --- |
+| `bam_files` matches no BAM | error | warn, run nothing, exit 0 |
+| a subcohort's sample list is empty | error | warn, skip that subcohort |
+| every subcohort's sample list is empty | error | warn, run nothing, exit 0 |
+| a subcohort matches none of the classified samples | error | warn, skip that subcohort's SPARKI run |
+
+Two consequences are worth knowing before turning it on:
+
+- it makes a typo'd `BAMS_DIR` look like a successful run, so set it per cohort in the
+  asset config rather than as a global default;
+- a run that ends early publishes nothing under `outdir`, so anything downstream sees a
+  completed run with no outputs.
+
+Kraken2 still classifies every matched BAM in the subcohort cases - only the SPARKI step
+is skipped. A run that stops at the first case does no work at all.
 
 ### Run artifacts
 

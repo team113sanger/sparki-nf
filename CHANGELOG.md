@@ -62,21 +62,42 @@ the start of each changelog entry to indicate the impact of the change:
 - **INTEGRATION** - This `## Keywords` block, and keywords on every entry from this
   release forward.
 
-- **REPRODUCIBILITY** - `subcohorts` restricts which samples each SPARKI analysis
-  covers. Kraken2 and KrakenTools still classify every sample matched by `bam_files`;
-  each subcohort then gets its own SPARKI run over only the reports of the samples its
-  `sample_list` names, published under `outdir/sparki/<subcohort>/` and prefixed with
-  the subcohort name. Results for a given set of samples are unchanged, but a run that
-  previously produced one `sparki/` directory over every sample now produces one per
-  subcohort - and samples absent from every list no longer contribute to any SPARKI
-  output. With `subcohorts` left empty the previous behaviour is kept, as a single
-  `all_samples` subcohort. A subcohort matching none of the classified samples is an
-  error, and samples in no subcohort are logged as a warning, because the sample id is
-  derived from the BAM filename and a naming mismatch would otherwise be silent.
-- **INTEGRATION** - `pathogen_id.config` feeds `subcohorts` from
-  `RNA_SAMPLE_LIST_ONE_PER_PATIENT` and `RNA_SAMPLE_LIST_FINAL_DECISION`, which
-  `run_pathogen_id.sh` now checks are exported and documents in its MANUAL ENVIRONMENT
-  OVERRIDES block. The standalone contract is eight exports rather than six.
+- **REPRODUCIBILITY** - `use_subcohorts` and `subcohorts` restrict which samples each
+  SPARKI analysis covers. The split is opt-in: `use_subcohorts = false`, the default,
+  runs SPARKI once over every classified sample under `outdir/sparki/all_samples/`,
+  which is the pipeline's previous behaviour. With `use_subcohorts = true`, Kraken2 and
+  KrakenTools still classify every sample matched by `bam_files`, but each subcohort
+  gets its own SPARKI run over only the reports of the samples its `sample_list` names,
+  published under `outdir/sparki/<subcohort>/` and prefixed with the subcohort name.
+  Results for a given set of samples are unchanged, but such a run produces one `sparki/`
+  directory per subcohort rather than one over every sample - and samples absent from
+  every list no longer contribute to any SPARKI output. A subcohort matching none of the
+  classified samples is an error, and samples in no subcohort are logged as a warning,
+  because the sample id is derived from the BAM filename and a naming mismatch would
+  otherwise be silent. `use_subcohorts = true` with no `subcohorts` configured is an
+  error rather than a silent fall back to `all_samples`; turning the toggle off leaves a
+  configured `subcohorts` map in place, ignored and named in a log line.
+- **INTEGRATION** - `pathogen_id.config` sets `use_subcohorts = true` and feeds
+  `subcohorts` from `RNA_SAMPLE_LIST_ONE_PER_PATIENT` and
+  `RNA_SAMPLE_LIST_FINAL_DECISION`, which `run_pathogen_id.sh` now checks are exported
+  and documents in its MANUAL ENVIRONMENT OVERRIDES block. The standalone contract is
+  eight exports rather than six.
+- **ROBUSTNESS** - `params.allow_empty_input` (accepts `true`/`false`/`1`/`0`, default
+  `false`), for cohorts that are wired up before their data exists. At the default,
+  every way a run can resolve to zero samples is an error, as before. Set to `true`,
+  each one logs a warning and the run completes successfully, so a scheduled run on an
+  empty cohort records `completed` in the analysis log rather than `failed`:
+  - `bam_files` matching no BAM runs nothing and exits 0;
+  - a subcohort whose sample list is empty is skipped, and a run whose subcohorts are
+    all empty runs nothing and exits 0;
+  - a subcohort matching none of the classified samples is skipped rather than failing
+    the run, leaving the other subcohorts to publish.
+
+  `bam_files` is now resolved with `file()` before the BAM channel is built, so zero
+  matches is a decision the workflow makes rather than a `checkIfExists` error thrown
+  inside the channel factory. `pathogen_id.config` sets it to `false` explicitly: for a
+  cohort with data, an empty input means something upstream is wrong and should fail
+  rather than record a green run that analysed nothing.
 
 ### Changed
 - **INTEGRATION** - **Breaking:** run reporting is opt-in via the toggles above;

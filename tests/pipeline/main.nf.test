@@ -73,4 +73,49 @@ nextflow_pipeline {
             assert workflow.trace.tasks().size() == 7
         }
     }
+
+    test("The pipeline fails when no BAM files match and allow_empty_input is at its default") {
+
+        when {
+            params {
+                // A pattern that deliberately matches nothing. No fixtures are
+                // needed: the empty-input check runs before any file is opened.
+                bam_files = "${baseDir}/tests/testdata/bam_files/**.no_such_suffix"
+                reference_database = "${baseDir}/tests/testdata/kraken2_reference"
+                confidence = "0.1"
+                organism = "'Homo sapiens'"
+                domain = "Viruses"
+            }
+        }
+
+        then {
+            assert workflow.failed
+            // The check fires in the workflow body, before any task runs, so the
+            // message lands on stdout rather than in workflow.errorReport.
+            assert workflow.stdout.any { it.contains("no BAM files match") }
+            assert workflow.trace.tasks().size() == 0
+        }
+    }
+
+    test("The pipeline succeeds when no BAM files match and allow_empty_input is true") {
+
+        when {
+            params {
+                bam_files = "${baseDir}/tests/testdata/bam_files/**.no_such_suffix"
+                reference_database = "${baseDir}/tests/testdata/kraken2_reference"
+                confidence = "0.1"
+                organism = "'Homo sapiens'"
+                domain = "Viruses"
+                allow_empty_input = true
+            }
+        }
+
+        then {
+            // The point of the flag: an empty cohort is a successful no-op, so
+            // the run is logged as completed rather than failed.
+            assert workflow.success
+            assert workflow.exitStatus == 0
+            assert workflow.trace.tasks().size() == 0
+        }
+    }
 }
