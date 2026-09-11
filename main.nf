@@ -67,15 +67,18 @@ workflow {
         }.findAll { it != null }
 
         // Every subcohort dropped out above, so there is nothing left to select
-        // samples for - classifying them would publish no SPARKI output at all.
+        // samples for and no SPARKI run to make. The classification still runs:
+        // its per-sample Kraken2 output is published and cached, so the SPARKI
+        // step is all that is waiting on the sample lists being populated.
         if (!subcohort_defs) {
             log.warn(
-                "Every configured subcohort has an empty sample list; nothing to analyse. " +
-                "Completing successfully (allow_empty_input is true)."
+                "Every configured subcohort has an empty sample list; classifying the samples " +
+                "but skipping the SPARKI analysis (allow_empty_input is true)."
             )
-            return
         }
-        log.info("Processing subcohorts: ${subcohort_defs.collect { it.name }.join(', ')}")
+        else {
+            log.info("Processing subcohorts: ${subcohort_defs.collect { it.name }.join(', ')}")
+        }
     }
 
     /*************************/
@@ -143,7 +146,11 @@ workflow {
     all_std_reports = GET_KRAKEN2_RESULTS.out.std_reports.toList().map { pairs -> [pairs] }
     all_mpa_reports = GET_KRAKEN2_RESULTS.out.mpa_reports.toList().map { pairs -> [pairs] }
 
-    if (subcohort_defs) {
+    if (use_subcohorts && !subcohort_defs) {
+        // Classification ran; there is no subcohort left to select samples for.
+        sparki_inputs = Channel.empty()
+    }
+    else if (use_subcohorts) {
         sparki_inputs = Channel.fromList(subcohort_defs)
             .combine(all_std_reports)
             .combine(all_mpa_reports)

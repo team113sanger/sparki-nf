@@ -208,7 +208,7 @@ rather than `failed`.
 | --- | --- | --- |
 | `bam_files` matches no BAM | error | warn, run nothing, exit 0 |
 | a subcohort's sample list is empty | error | warn, skip that subcohort |
-| every subcohort's sample list is empty | error | warn, run nothing, exit 0 |
+| every subcohort's sample list is empty | error | warn, classify the samples, skip SPARKI |
 | a subcohort matches none of the classified samples | error | warn, skip that subcohort's SPARKI run |
 
 Two consequences are worth knowing before turning it on:
@@ -218,8 +218,10 @@ Two consequences are worth knowing before turning it on:
 - a run that ends early publishes nothing under `outdir`, so anything downstream sees a
   completed run with no outputs.
 
-Kraken2 still classifies every matched BAM in the subcohort cases - only the SPARKI step
-is skipped. A run that stops at the first case does no work at all.
+Kraken2 still classifies every matched BAM in all three subcohort cases - only the SPARKI
+step is skipped, so the per-sample Kraken2 output is published and cached and a later run
+over populated sample lists resumes straight into SPARKI. Only the first case, no matching
+BAM, does no work at all.
 
 The shipped `pathogen_id.config` sets `allow_empty_input = true`, because dermanager
 exports that cohort's subcohort sample lists before the data they name exists.
