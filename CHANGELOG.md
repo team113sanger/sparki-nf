@@ -22,6 +22,7 @@ the start of each changelog entry to indicate the impact of the change:
 
 ## [Unreleased]
 ### Added
+- **INTEGRATION** - `assets/run_pathogen_id.sh` reports workdir size to dermatlas website.
 - **INTEGRATION** - `assets/run_pathogen_id.sh`, a launcher for managed (projectify)
   runs and for git-clone runs. It owns the run's identity (`RUN_ID`), validates the
   environment in three classes before Nextflow starts, takes a `flock` on
